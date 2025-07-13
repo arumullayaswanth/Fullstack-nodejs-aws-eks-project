@@ -8,7 +8,7 @@ resource "aws_db_instance" "rds" {
   multi_az               = true
   db_name                = "mydb"
   username               = "admin"
-  password               = "srivardhan"
+  password               = "yaswanth"
   skip_final_snapshot    = true
   vpc_security_group_ids = [aws_security_group.security-group.id]
   depends_on = [ aws_db_subnet_group.sub-grp ]
