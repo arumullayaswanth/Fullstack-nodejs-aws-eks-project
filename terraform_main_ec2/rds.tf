@@ -12,7 +12,7 @@ resource "aws_db_instance" "rds" {
   skip_final_snapshot    = true
   vpc_security_group_ids = [aws_security_group.security-group.id]
   depends_on = [ aws_db_subnet_group.sub-grp ]
-  publicly_accessible = true
+  publicly_accessible = false
   backup_retention_period = 7
 
   
@@ -23,9 +23,10 @@ resource "aws_db_instance" "rds" {
 
 resource "aws_db_subnet_group" "sub-grp" {
   name       = "main"
-  subnet_ids = [aws_subnet.public-subnet1.id, aws_subnet.public-subnet2.id]
+  subnet_ids = [aws_subnet.private-subnet1.id, aws_subnet.private-subnet2.id]
 
   tags = {
     Name = "My DB subnet group"
   }
 }
+ 

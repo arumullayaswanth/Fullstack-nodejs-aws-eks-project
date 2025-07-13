@@ -1,3 +1,4 @@
+
 variable "region" {
   description = "AWS region"
   type = string
@@ -17,16 +18,30 @@ variable "igw-name" {
 }
 
 variable "subnet-name1" {
-  description = "Subnet Name for our Jumphost server"
+  description = "Public Subnet 1 Name"
   type = string
-  default = "Jumphost-subnet1"
+  default = "Public-Subnet-1"
 }
 
 variable "subnet-name2" {
   description = "Subnet Name for our Jumphost server"
   type = string
-  default = "Jumphost-subnet2"
+  default = "Public-subnet2"
 }
+
+# Private subnet name variables
+variable "private_subnet_name1" {
+  description = "Private Subnet 1 Name"
+  type = string
+  default = "Private-subnet1"
+}
+
+variable "private_subnet_name2" {
+  description = "Private Subnet 2 Name"
+  type = string
+  default = "Private-subnet2"
+}
+
 variable "rt-name" {
   description = "Route Table Name for our Jumphost server"
   type = string
