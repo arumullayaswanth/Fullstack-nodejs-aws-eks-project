@@ -1,98 +1,200 @@
-   # 🚀 2ndWeeksofCloudOps - 3 tier Application
+# 🚀 Fullstack Node.js AWS EKS Project Deployment Guide
 
-✨This repository is created to learn and deploy  3-tier application on aws cloud. this project contain three layer Presentation, Application and database
+This is a step-by-step guide to deploy the fullstack project using Terraform, Jenkins, AWS, and Docker. Follow along like a recipe! 🍰
 
-## 🏠 Architecture
-![Architecture of the application](architecture.gif)
+---
 
-## Tech stack
+## ✅ Step 1: Clone the GitHub Repository
 
-- React 
-- Nodejs
-- MySQL
+1. Open **VS Code**.
+2. Open the terminal in VS Code.
+3. Clone the project:
 
-## 🖥️ Installation of frontend
-
-**Note**: You should have nodejs installed on your system. [Node.js](https://nodejs.org/)
-
-👉 let install dependency to run react application
-
-```sh
-cd client
-npm install
+```bash
+git clone https://github.com/arumullayaswanth/Fullstack-nodejs-aws-eks-project.git
 ```
 
-**Note**: you have to change one file for backend API. you will find that `src/pages/config.js`
+---
 
-```sh
-vim src/pages/config.js
+## 🔐 Step 2: Configure AWS Keys
+
+Make sure you have your AWS credentials configured. Run:
+
+```bash
+aws configure
 ```
 
-```javascript
-// const API_BASE_URL = "http://25.41.26.237:80"; // on live backend server which is running on port 80
-const API_BASE_URL = "http://localhost:portNumber";
-export default API_BASE_URL;
-```
-make sure you EDIT above file depends on your scenario
+Enter your:
+- Access Key ID
+- Secret Access Key
+- Region (like `us-east-1`)
+- Output format (leave it as `json`)
 
+---
 
-```sh
-npm run build 
-```
+## 📁 Step 3: Navigate into the Project
 
-above command creat optimize build of the application in client folder. `build/` you will find all the files that you can serve through **Apache** or **Nginx**
-that's the whole setup of the frontend
-
-##  🖥️ ️Installation of backend
-
-**Note**: You should have nodejs installed on your system. [Node.js](https://nodejs.org/)
-
-👉 let install dependency to run Nodejs  API
-
-```sh
-cd backend
-npm install
-```
-Now we need to create .env file that holds all the configuration details of the backend. you should be in backend directory
-
-```sh
-vim .env
-```
-add below content 
-
-```javascript
-DB_HOST=localhost or URL_of_RDS
-DB_USERNAME=user_name_of_MySQL
-DB_PASSWORD=passwod_of_my_sql
-PORT=3306
-```
-**Note** : please change above file depending on your setup. like you may use RDS(AWS) or Local mysql-server on your system. your mysql contain database with the name of `test` and it should has `books` table. You can you test.sql to create table 
-
-
-```sh
-mysql -h <<RDS_ENDPOINT OR localhost>> -u <<USER_NAME>> -p<<PASSWORD>>
-
-CREATE DATABASE test;
-
-mysql -h <<RDS_ENDPOINT OR localhost>> -u <<USER_NAME>> -p<<PASSWORD>> test < test.sql
+```bash
+ls
+cd Fullstack-nodejs-aws-eks-project
+ls
 ```
 
+---
 
-please install pm2 if you want to run on cloud. you may need sudo privilages to installed it because we are going to installed globally.
+## ☁️ Step 4: Create S3 Buckets for Terraform State
 
-```sh
-npm install -g pm2
+These buckets will store `terraform.tfstate` files.
+
+```bash
+cd s3-buckets/
+ls
+terraform init
+terraform plan
+terraform apply -auto-approve
 ```
 
-now you can run this application. make sure you are in backend directory
+---
 
+## 🌐 Step 5: Create Network and Database
 
-```sh
-pm2 start index.js --name "backendAPI"
+1. Navigate to Terraform EC2 folder:
+
+```bash
+cd ../terraform_main_ec2
 ```
 
-above command will start node server on port 80, you can modify the port number in `index.js` file
+2. Run Terraform:
 
-✈️ Now we are Ready to see the application
+```bash
+terraform init
+terraform plan
+terraform apply -auto-approve
+terraform state list
+```
 
-**Thank you so much for reading..😅**
+---
+
+## 🐳 Step 6: Create Backend Image Repository (ECR)
+
+Go to **AWS Console**:
+
+1. Search for: `Elastic Container Registry`
+2. Click **Private Registry**
+3. Click **Private Repositories**
+4. Click **Create repository**
+5. Repository name: `backend`
+6. Click **Create repository**
+
+---
+
+## 🎨 Step 7: Create Frontend Image Repository (ECR)
+
+Repeat the same steps as above:
+
+1. Search for: `Elastic Container Registry`
+2. Click **Private Registry** > **Private Repositories**
+3. Click **Create repository**
+4. Repository name: `frontend`
+5. Click **Create repository**
+
+---
+
+## 🔍 Step 8: Get Docker Image URIs
+
+1. Go to **ECR Console**
+2. Click on `backend` → Copy the image URI (we’ll use it later)
+3. Click on `frontend` → Copy the image URI
+
+---
+
+## 💻 Step 9: Connect to EC2 and Access Jenkins
+
+1. Go to **AWS Console** → **EC2**
+2. Click your instance → Connect
+3. Once connected, switch to root:
+
+```bash
+sudo -i
+```
+
+4. Check Jenkins is installed:
+
+```bash
+jenkins --version
+```
+
+5. Get the initial Jenkins admin password:
+
+```bash
+cat /var/lib/jenkins/secrets/initialAdminPassword
+```
+
+Copy that password!
+
+---
+
+## 🌐 Step 10: Jenkins Setup in Browser
+
+1. Open browser and go to:
+
+```
+http://<EC2 Public IP>:8080
+```
+
+2. Paste the password from last step.
+3. Click **Install suggested plugins**
+4. Create first user:
+
+| Field     | Value       |
+|-----------|-------------|
+| Username  | terraform   |
+| Password  | terraform   |
+| Full Name | yaswanth    |
+| Email     | yash@example.com |
+
+Click through: **Save and Continue → Save and Finish → Start using Jenkins**
+
+---
+
+## 🔐 Step 11: Add AWS Credentials in Jenkins
+
+1. In Jenkins Dashboard → **Manage Jenkins**
+2. Go to: **Credentials → System → Global Credentials (unrestricted)**
+3. Click **Add Credentials**
+
+### Add Access Key:
+- Kind: Secret Text
+- Secret: _your AWS Access Key_
+- ID: `accesskey`
+- Description: AWS Access Key
+
+### Add Secret Key:
+- Kind: Secret Text
+- Secret: _your AWS Secret Key_
+- ID: `secretkey`
+- Description: AWS Secret Key
+
+Click **Save** for both.
+
+---
+
+## 🔌 Step 12: Install Jenkins Plugin
+
+1. Jenkins Dashboard → **Manage Jenkins**
+2. Go to: **Plugins**
+3. Click **Available plugins**
+4. Search for: `pipeline: stage view`
+5. Install it
+
+
+---
+
+## 🛠️ Step 13: Create a Jenkins Pipeline Job
+
+1. Go to Jenkins Dashboard
+2. Click **New Item**
+3. Name it: `terraform-deploy`
+4. Select: **Pipeline**
+5. Click **OK**
+6. Scroll to **Pipeline Script**, and paste your pipeline code (you can build it in next steps)
