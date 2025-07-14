@@ -14,11 +14,12 @@ resource "aws_db_instance" "rds" {
   depends_on = [ aws_db_subnet_group.sub-grp ]
   publicly_accessible = false
   backup_retention_period = 7
+  deletion_protection = false # Allow deletion of RDS instance
 
-  
   tags = {
     DB_identifier = "book-rds"
   }
+  # Ensure your IAM user/role has permissions for EC2 and RDS deletion
 }
 
 resource "aws_db_subnet_group" "sub-grp" {
