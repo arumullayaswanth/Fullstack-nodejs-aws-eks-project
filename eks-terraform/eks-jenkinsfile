@@ -5,14 +5,14 @@ pipeline {
         choice(
             name: 'ACTION',
             choices: ['apply', 'destroy'],
-            description: 'Select Terraform action'
+            description: '🔧 Select the Terraform action to perform'
         )
     }
 
     stages {
         stage('Checkout from Git') {
             steps {
-                echo 'git checkout'
+                echo 'Checking out Git repository...'
             }
         }
 
@@ -46,10 +46,24 @@ pipeline {
             }
         }
 
-        stage('Terraform apply/destroy') {
+        stage('Terraform apply') {
+            when {
+                expression { params.ACTION == 'apply' }
+            }
             steps {
                 dir('eks-terraform') {
-                    sh "terraform ${params.ACTION} -auto-approve"
+                    sh 'terraform apply -auto-approve'
+                }
+            }
+        }
+
+        stage('Terraform destroy') {
+            when {
+                expression { params.ACTION == 'destroy' }
+            }
+            steps {
+                dir('eks-terraform') {
+                    sh 'terraform destroy -auto-approve'
                 }
             }
         }
