@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: 590183987504.dkr.ecr.us-east-1.amazonaws.com/frontend:latest  # replace your frontend image
+        image: 421954350274.dkr.ecr.us-east-1.amazonaws.com/frontend  # replace your frontend image
         ports:
         - containerPort: 80
         env:   # <-- Fixed indentation
