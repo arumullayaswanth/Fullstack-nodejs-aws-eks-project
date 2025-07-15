@@ -53,7 +53,7 @@ provider "aws" {
   }
 
   resource "aws_iam_policy" "autoscaler" {
-    name = "yaswanth-eks-autoscaler-policy1"
+    name = "veera-eks-autoscaler-policy1"
     policy = jsonencode({
       "Version": "2012-10-17",
       "Statement": [
@@ -121,7 +121,7 @@ data "aws_subnet" "subnet-1" {
  vpc_id = data.aws_vpc.main.id
  filter {
     name = "tag:Name"
-    values = ["Jumphost-subnet1"]
+    values = ["Public-Subnet-1"]
  }
 }
 
@@ -129,7 +129,7 @@ data "aws_subnet" "subnet-2" {
  vpc_id = data.aws_vpc.main.id
  filter {
     name = "tag:Name"
-    values = ["Jumphost-subnet2"]
+    values = ["Public-Subnet-2"]
  }
 }
 data "aws_security_group" "selected" {
