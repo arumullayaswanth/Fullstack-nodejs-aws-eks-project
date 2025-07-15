@@ -109,7 +109,7 @@ echo "Initialization script completed successfully."
 
 #----------------sql-----------------------
 
-yum install mariadb105-server -y
+sudo yum install mariadb105-server -y
 sudo systemctl start mariadb
 sudo systemctl enable mariadb
 
