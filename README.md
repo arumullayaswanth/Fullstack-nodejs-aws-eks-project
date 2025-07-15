@@ -105,6 +105,21 @@ Repeat the same steps as above:
 1. Go to **ECR Console**
 2. Click on `backend` → Copy the image URI (we’ll use it later)
 3. Click on `frontend` → Copy the image URI
+## 🔄 step 9: Updating ECR Images for Frontend and Backend Deployments
+- This guide explains how to update the Amazon ECR Docker images used in Kubernetes manifests:
+ - `kubernetes-files/frontend-deploy-service.yaml`
+```bash
+containers:
+      - name: frontend
+        image: 421954350274.dkr.ecr.us-east-1.amazonaws.com/frontend  # replace your frontend image
+```
+
+ - `kubernetes-files/backend-deployment.yaml`
+```bash
+containers:
+  - name: backend
+    image: 421954350274.dkr.ecr.us-east-1.amazonaws.com/backend   # replace your backend image
+```
 
 ---
 
