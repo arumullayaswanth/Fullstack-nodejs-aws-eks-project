@@ -190,8 +190,4 @@ data "aws_security_group" "selected" {
       aws_iam_role_policy_attachment.AmazonEC2ContainerRegistryReadOnly,
     ]
   }
-variable "node_group_name" {
-  description = "Name of the EKS node group"
-  type        = string
-  default     = "project-node-group"
-}
+
