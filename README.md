@@ -392,3 +392,141 @@ kubectl get secret argocd-initial-admin-secret -n argocd \
 * **Username:** `admin`
 * **Password:** (The output of the above command)
 ---
+
+
+
+## 🚀 step 16: Setting Up Jenkins Pipelines for Frontend & Backend Projects
+
+
+### ⚖️ Jenkins Pipeline Setup: Frontend
+
+1. Go to **Jenkins Dashboard**
+2. Click **New Item**
+
+   * Enter an item name: `frontend`
+   * Select: **Pipeline**
+   * Click **OK**
+3. In the Pipeline section:
+
+   * Scroll to **Pipeline** → **Definition: Pipeline script**
+   * In **Script**, enter:
+
+```bash
+code
+```
+
+4. Click **Save**
+5. Click **Build Now**
+
+---
+
+### 📂 Jenkins Pipeline Setup: Backend
+
+1. Go to **Jenkins Dashboard**
+2. Click **New Item**
+
+   * Enter an item name: `backend`
+   * Select: **Pipeline**
+   * Click **OK**
+3. In the Pipeline section:
+
+   * Scroll to **Pipeline** → **Definition: Pipeline script**
+   * In **Script**, enter:
+
+```bash
+code
+```
+
+4. Click **Save**
+5. Click **Build Now**
+
+
+
+
+---
+## 🔍 Step 17: Get Docker Image URIs
+
+1. Go to **ECR Console**
+2. Click on `backend` → Copy the image URI (we’ll use it later)
+3. Click on `frontend` → Copy the image URI
+
+## 🔄 step 18: Updating ECR Images for Frontend and Backend Deployments
+- This guide explains how to update the Amazon ECR Docker images used in Kubernetes manifests:
+ - `kubernetes-files/frontend-deploy-service.yaml`
+```bash
+containers:
+      - name: frontend
+        image: 421954350274.dkr.ecr.us-east-1.amazonaws.com/frontend  # replace your frontend image
+```
+
+ - `kubernetes-files/backend-deployment.yaml`
+```bash
+containers:
+  - name: backend
+    image: 421954350274.dkr.ecr.us-east-1.amazonaws.com/backend   # replace your backend image
+```
+---
+
+
+---
+
+## 🔍 Step 19: Creating Kubernetes Secret for RDS Access
+
+This guide walks you through creating a Kubernetes `Secret` YAML file with your RDS credentials. These values need to be base64-encoded before being inserted into the secret manifest.
+
+---
+
+### 🔐 Step 19.1: Kubernetes Secret Configuration
+
+Use the online tool [https://www.base64encode.org/](https://www.base64encode.org/) to encode each value.
+
+#### ➔ Encode `RDS Endpoint`
+
+1. Go to: [https://www.base64encode.org/](https://www.base64encode.org/)
+2. Under **Encode to Base64 format**, enter your **RDS Endpoint** (e.g., `mydb.abcdefg.us-west-1.rds.amazonaws.com`)
+3. Click **Encode**
+4. Copy the **base64 encoded output**
+
+#### ➔ Encode `RDS Username`
+
+1. Repeat the steps above using your **RDS username** (eg., `admin`)
+2. Copy the **base64 encoded output**
+
+#### ➔ Encode `RDS Password`
+
+1. Repeat the steps above using your **RDS password** (e.g., `yaswanth`)
+2. Copy the **base64 encoded output**
+
+---
+
+## 📄 Step 20 : Kubernetes Secret Configuration
+- File: `kubernetes-files/secret.yaml`
+
+- This secret stores sensitive information such as the RDS endpoint, username, and password, encoded in Base64.
+
+## File: `kubernetes-files/secret.yaml`
+
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: db-secret
+type: Opaque
+data:
+  db_host: Ym9vay1yZHMuYzBuOGswYTBzd3R6LnVzLWVhc3QtMS5yZHMuYW1hem9uYXdzLmNvbQ==
+  db_username: YWRtaW4=
+  db_password: eWFzd2FudGg=
+```
+
+## Base64 Encoded Values
+
+| Key          | Original Value     | Base64 Encoded                                  |
+|--------------|--------------------|--------------------------------------------------|
+| db_host      | RDS Endpoint       | `Ym9vay1yZHMuYzBuOGswYTBzd3R6LnVzLWVhc3QtMS5yZHMuYW1hem9uYXdzLmNvbQ==` |
+| db_username  | RDS username       | `YWRtaW4=`                                       |
+| db_password  | RDS password       | `eWFzd2FudGg=`                                   |
+
+> ⚠️ These values are encoded with Base64 for use in Kubernetes Secrets. They are **not encrypted**, and should be treated as sensitive.
+
+
+✅ You now have a Kubernetes secret containing your RDS credentials!
