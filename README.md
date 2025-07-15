@@ -215,7 +215,7 @@ Click **Save** for both.
     - **Build** 
 
 
-## 🖥️ Connect to Private RDS from Jumphost EC2
+## 🖥️ step 14 : Connect to Private RDS from Jumphost EC2
 
 - My challenge is my database created a new database now I am going to create insider database some existing records.
 
