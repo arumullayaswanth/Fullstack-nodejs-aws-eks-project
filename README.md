@@ -561,4 +561,66 @@ data:
 
 ✅ You now have a Kubernetes secret containing your RDS credentials!
 
+
+
+
+
+---
+
+## Step 21:  Deploying with ArgoCD and Configuring Route 53 (Step-by-Step)
+
+### 1. Create Namespace in EKS (from Jumphost EC2)
+Run these commands on your jumphost EC2 server:
+```bash
+kubectl create namespace dev
+kubectl get namespaces
+```
+
+### 2. Create New Applicatio with ArgoCD
+1. Open the **ArgoCD UI** in your browser.
+2. Click **+ NEW APP**.
+3. Fill in the following:
+   - **Application Name:** `project`
+   - **Project Name:** `default`
+   - **Sync Policy:** `Automatic`
+   - **Repository URL:** `https://github.com/arumullayaswanth/Fullstack-nodejs-aws-eks-project.git`
+   - **Revision:** `HEAD`
+   - **Path:** `kubernetes-files`
+   - **Cluster URL:** `https://kubernetes.default.svc`
+   - **Namespace:** `dev`
+4. Click **Create**.
+
+### 3. Configure Route 53 for Backend
+1. In ArgoCD UI, open your `project` application.
+2. Click on **backend** and copy the hostname (e.g.,
+   `acfb06fba08834577a50e43724d328e3-1568967602.us-east-1.elb.amazonaws.com`).
+3. Go to **AWS Route 53** > **Hosted zones** > open your hosted zone (e.g., `aluru.site`).
+4. Click **Create record** and fill in:
+   - **Record type:** `A – Routes traffic to an IPv4 address and some AWS resources`
+   - **Alias:** `Yes`
+   - **Alias target:** Choose Application and Classic Load Balancer
+   - **Region:** `US East (N. Virginia)`
+   - **Alias target value:** Paste the backend load balancer DNS (from step 2)
+5. Click **Create record**.
+
+### 4. Verify Frontend Load Balancer Works
+1. Go back to ArgoCD UI , open your `project` application.
+2. Click on **frontend** and copy the hostname (e.g.,
+   `a5c516a43689c44278448cfe1de09089-409723786.us-east-1.elb.amazonaws.com`).
+3. To test if the frontend is working, paste the load balancer DNS in your browser:
+   `http://a5c516a43689c44278448cfe1de09089-409723786.us-east-1.elb.amazonaws.com/`
+
+### 5. ✅ (Optional) Add Frontend DNS in Route 53
+1. In ArgoCD UI, open your `project` application.
+2. Click on **frontend** and copy the hostname (e.g.,
+   `acfb06fba08834577a50e43724d328e3-1568967602.us-east-1.elb.amazonaws.com`).
+3. Go to **AWS Route 53** > **Hosted zones** > open your hosted zone (e.g., `aluru.site`).
+4. Click **Create record** and fill in:
+   - **Record type:** `A – Routes traffic to an IPv4 address and some AWS resources`
+   - **Alias:** `Yes`
+   - **Alias target:** Choose Application and Classic Load Balancer
+   - **Region:** `US East (N. Virginia)`
+   - **Alias target value:** Paste the frontend load balancer DNS (from step 2)
+5. Click **Create record**.
+   
 ---
