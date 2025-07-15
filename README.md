@@ -447,8 +447,18 @@ code
 ## 🔍 Step 17: Get Docker Image URIs
 
 1. Go to **ECR Console**
-2. Click on `backend` → Copy the image URI (we’ll use it later)
-3. Click on `frontend` → Copy the image URI
+2. Click on `backend` → click the later images and open
+   - Details
+      - copy : URI
+        ```bash
+        421954350274.dkr.ecr.us-east-1.amazonaws.com/backend:1
+        ```
+4. Click on `frontend` → click the later images and open
+   - Details
+      - copy : URI
+        ```bash
+        421954350274.dkr.ecr.us-east-1.amazonaws.com/frontend:1
+        ```
 
 ## 🔄 step 18: Updating ECR Images for Frontend and Backend Deployments
 - This guide explains how to update the Amazon ECR Docker images used in Kubernetes manifests:
