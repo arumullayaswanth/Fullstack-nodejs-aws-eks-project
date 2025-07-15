@@ -281,7 +281,7 @@ kubectl get nodes
 - You must run this from the EC2 instance in the same VPC as your RDS (the Jumphost).
 - If you want to use MySQL Workbench or other tools, set up an SSH tunnel through the Jumphost.
 ---
-## 🖥️ step 15 : 🎉 Install ArgoCD
+## 🖥️ step 15 : 🎉 Install ArgoCD in Jumphost EC2
 
 ### 1. Create Namespace for ArgoCD
 
