@@ -214,6 +214,11 @@ Click **Save** for both.
     - Select Terraform action : `apply`
     - **Build** 
 
+- To verify your EKS cluster, connect to your EC2 jumphost server and run:
+```bash
+aws eks --region us-east-1 update-kubeconfig --name project-eks
+kubectl get nodes
+```
 
 ## 🖥️ step 14 : Connect to Private RDS from Jumphost EC2
 
