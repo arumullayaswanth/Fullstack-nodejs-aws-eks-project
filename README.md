@@ -129,6 +129,10 @@ jenkins --version
 ```bash
 cat /var/lib/jenkins/secrets/initialAdminPassword
 ```
+- example output :
+``` bash
+0c39f23132004d508132ae3e0a7c70e4
+```
 
 Copy that password!
 
@@ -148,8 +152,8 @@ http://<EC2 Public IP>:8080
 
 | Field     | Value       |
 |-----------|-------------|
-| Username  | terraform   |
-| Password  | terraform   |
+| Username  | yaswanth    |
+| Password  | yaswanth    |
 | Full Name | yaswanth    |
 | Email     | yash@example.com |
 
@@ -194,7 +198,85 @@ Click **Save** for both.
 
 1. Go to Jenkins Dashboard
 2. Click **New Item**
-3. Name it: `terraform-deploy`
+3. Name it: `eks-terraform`
 4. Select: **Pipeline**
 5. Click **OK**
-6. Scroll to **Pipeline Script**, and paste your pipeline code (you can build it in next steps)
+ - Pipeline:
+   - Definition : `Pipeline script from SCM`
+   - SCM : `Git`
+   - Repositories : `https://github.com/arumullayaswanth/Fullstack-nodejs-aws-eks-project.git`
+   - Branches to build : `*/master`
+   - Script Path : `eks-terraform/eks-jenkinsfile`
+   - Apply
+   - Save
+6. click **Build with Parameters**
+   - ACTION :
+    - Select Terraform action : `apply`
+    - **Build** 
+
+
+## 🖥️ Connect to Private RDS from Jumphost EC2
+
+- My challenge is my database created a new database now I am going to create insider database some existing records.
+
+- whenever i access a frontend and existing records you can see first then you can add your record in this case database inside you need to run some script 
+
+- So if your RDS database is private, you cannot connect directly from your local machine or external tools. Instead, use your EC2 Jumphost server to access and manage the database.
+
+### Prerequisites
+1. Go to AWS Console → RDS → select your DB instance (e.g., `book-rds`).
+2. Copy the **Endpoint** value.
+3. Note your credentials:
+   - Username: `admin`
+   - Password: `yaswanth`
+
+### Steps to Connect and Import Data
+1. SSH into your EC2 Jumphost instance:
+   ```bash
+   ssh -i <your-key.pem> ec2-user@<jumphost-public-ip>
+   sudo -i
+   ```
+2. Clone your project and navigate to the backend folder:
+   ```bash
+   git clone https://github.com/arumullayaswanth/Fullstack-nodejs-aws-eks-project.git
+   cd Fullstack-nodejs-aws-eks-project/backend/
+   ```
+
+3. Import your initial data into the RDS database:
+   ```bash
+   mysql -h <your-rds-endpoint> -u admin -p < test.sql
+   # When prompted, enter your password: yaswanth
+   ```
+   **Example:**
+   ```bash
+   mysql -h book-rds.c0n8k0a0swtz.us-east-1.rds.amazonaws.com -u admin -p < test.sql
+   # Password: yaswanth
+   ```
+
+4. Verify your database tables are created:
+   ```bash
+   mysql -h <your-rds-endpoint> -u admin -p
+   # Enter password: yaswanth
+   ```
+   Then in the MySQL prompt:
+   ```sql
+   SHOW DATABASES;
+   USE test;
+   SHOW TABLES;
+   DESCRIBE books;
+   SELECT * FROM books;
+   exit
+   ```
+   ```bash
+   +----+------------+------------------------------------------------+--------+---------------------------------------------------------------+
+| id | title      | desc                                           | price  | cover                                                         |
++----+------------+------------------------------------------------+--------+---------------------------------------------------------------+
+| 1  | MultiCloud | this is multicloud with devops...              | 2343.2 | https://docs.multy.dev/assets/images/...                      |
+| 2  | DevOps     | if you understand the devops it is very easy   | 2342.3 | https://media.licdn.com/dms/image/...                         |
++----+------------+------------------------------------------------+--------+---------------------------------------------------------------+
+```
+   This will list all tables in your database.
+
+**Note:**
+- You must run this from the EC2 instance in the same VPC as your RDS (the Jumphost).
+- If you want to use MySQL Workbench or other tools, set up an SSH tunnel through the Jumphost.
