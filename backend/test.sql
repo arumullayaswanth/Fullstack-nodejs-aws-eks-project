@@ -15,6 +15,7 @@ CREATE DATABASE IF NOT EXISTS test;
 
 -- Use the test database
 USE test;
+DROP TABLE IF EXISTS `books`;
 
 -- Table structure for table `books`
 CREATE TABLE IF NOT EXISTS `books` (
