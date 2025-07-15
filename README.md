@@ -98,8 +98,8 @@ Repeat the same steps as above:
 4. Repository name: `frontend`
 5. Click **Create repository**
 
-
 ---
+
 
 ## 💻 Step 9: Connect to EC2 and Access Jenkins
 
@@ -393,12 +393,32 @@ kubectl get secret argocd-initial-admin-secret -n argocd \
 * **Password:** (The output of the above command)
 ---
 
+## Step 15: Create a Jenkins Pipeline Job for Backend and frondend & Route 53 Setup
 
+### Prerequisites
+1. Go to AWS Route 53
+2. Create a Hosted Zone:
+   - Domain: `aluru.site`
+   - Type: Public Hosted Zone
+3. Update Hostinger Nameservers:
+   - Paste the 4 NS records from Route 53 into Hostinger:
+     - ns-865.awsdns-84.net
+     - ns-1995.awsdns-97.co.uk
+     - ns-1418.awsdns-59.org
+     - ns-265.awsdns-73.com
 
-## 🚀 step 16: Setting Up Jenkins Pipelines for Frontend & Backend Projects
+### Update Frontend API Endpoint
+Go to `Client/src/pages/config.js` and update your API base URL:
+```js
+// const API_BASE_URL = "http://localhost:8800";
+const API_BASE_URL = "http://aluru.site";
+export default API_BASE_URL;
+// const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://backend";
+// export default API_BASE_URL;
+// const API_BASE_URL = "REACT_APP_API_BASE_URL_PLACEHOLDER";
+```
 
-
-### ⚖️ Jenkins Pipeline Setup: Frontend
+### 🚀 step 15.1: ⚖️ Jenkins Pipeline Setup: Frontend
 
 1. Go to **Jenkins Dashboard**
 2. Click **New Item**
@@ -420,7 +440,7 @@ code
 
 ---
 
-### 📂 Jenkins Pipeline Setup: Backend
+### 🚀 step 15.2:  📂 Jenkins Pipeline Setup: Backend
 
 1. Go to **Jenkins Dashboard**
 2. Click **New Item**
@@ -444,7 +464,7 @@ code
 
 
 ---
-## 🔍 Step 17: Get Docker Image URIs
+## 🔍 Step 16: Get Docker Image URIs
 
 1. Go to **ECR Console**
 2. Click on `backend` → click the later images and open
@@ -540,3 +560,5 @@ data:
 
 
 ✅ You now have a Kubernetes secret containing your RDS credentials!
+
+---
