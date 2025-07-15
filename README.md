@@ -99,9 +99,42 @@ Repeat the same steps as above:
 5. Click **Create repository**
 
 ---
+## 🔍 Step 8: Get Docker Image URIs
+
+1. Go to **ECR Console**
+2. Click on `backend` → click the later images and open
+   - Details
+      - copy : URI
+        ```bash
+        421954350274.dkr.ecr.us-east-1.amazonaws.com/backend:1
+        ```
+4. Click on `frontend` → click the later images and open
+   - Details
+      - copy : URI
+        ```bash
+        421954350274.dkr.ecr.us-east-1.amazonaws.com/frontend:1
+        ```
+
+## 🔄 step 9: Updating ECR Images for Frontend and Backend Deployments
+- This guide explains how to update the Amazon ECR Docker images used in Kubernetes manifests:
+ - `kubernetes-files/frontend-deploy-service.yaml`
+```bash
+containers:
+      - name: frontend
+        image: 421954350274.dkr.ecr.us-east-1.amazonaws.com/frontend  # replace your frontend image
+```
+
+ - `kubernetes-files/backend-deployment.yaml`
+```bash
+containers:
+  - name: backend
+    image: 421954350274.dkr.ecr.us-east-1.amazonaws.com/backend   # replace your backend image
+```
+
+---
 
 
-## 💻 Step 9: Connect to EC2 and Access Jenkins
+## 💻 Step 10: Connect to EC2 and Access Jenkins
 
 1. Go to **AWS Console** → **EC2**
 2. Click your instance → Connect
@@ -131,7 +164,7 @@ Copy that password!
 
 ---
 
-## 🌐 Step 10: Jenkins Setup in Browser
+## 🌐 Step 11: Jenkins Setup in Browser
 
 1. Open browser and go to:
 
@@ -154,7 +187,7 @@ Click through: **Save and Continue → Save and Finish → Start using Jenkins**
 
 ---
 
-## 🔐 Step 11: Add AWS Credentials in Jenkins
+## 🔐 Step 12: Add AWS Credentials in Jenkins
 
 1. In Jenkins Dashboard → **Manage Jenkins**
 2. Go to: **Credentials → System → Global Credentials (unrestricted)**
@@ -176,7 +209,7 @@ Click **Save** for both.
 
 ---
 
-## 🔌 Step 12: Install Jenkins Plugin
+## 🔌 Step 13: Install Jenkins Plugin
 
 1. Jenkins Dashboard → **Manage Jenkins**
 2. Go to: **Plugins**
@@ -417,8 +450,21 @@ export default API_BASE_URL;
 // export default API_BASE_URL;
 // const API_BASE_URL = "REACT_APP_API_BASE_URL_PLACEHOLDER";
 ```
+---
 
-### 🚀 step 15.1: ⚖️ Jenkins Pipeline Setup: Frontend
+## 🔐 Step 16: Add GitHub PAT to Jenkins Credentials
+
+1. Navigate to **Jenkins Dashboard** → **Manage Jenkins** → **Credentials** → **(global)** → **Global credentials (unrestricted)**.
+2. Click **“Add Credentials”**.
+3. In the form:
+   - **Kind**: `Secret text`
+   - **Secret**: `ghp_HKMTPOKYE2LLGuytsimxnnl5d1f73zh`
+   - **ID**: `my-git-pattoken`
+   - **Description**: `git credentials`
+4. Click **“OK”** to save.
+
+
+### 🚀 step 16.1: ⚖️ Jenkins Pipeline Setup: Frontend
 
 1. Go to **Jenkins Dashboard**
 2. Click **New Item**
@@ -440,7 +486,7 @@ code
 
 ---
 
-### 🚀 step 15.2:  📂 Jenkins Pipeline Setup: Backend
+### 🚀 step 16.2:  📂 Jenkins Pipeline Setup: Backend
 
 1. Go to **Jenkins Dashboard**
 2. Click **New Item**
@@ -460,42 +506,6 @@ code
 4. Click **Save**
 5. Click **Build Now**
 
-
-
-
----
-## 🔍 Step 16: Get Docker Image URIs
-
-1. Go to **ECR Console**
-2. Click on `backend` → click the later images and open
-   - Details
-      - copy : URI
-        ```bash
-        421954350274.dkr.ecr.us-east-1.amazonaws.com/backend:1
-        ```
-4. Click on `frontend` → click the later images and open
-   - Details
-      - copy : URI
-        ```bash
-        421954350274.dkr.ecr.us-east-1.amazonaws.com/frontend:1
-        ```
-
-## 🔄 step 18: Updating ECR Images for Frontend and Backend Deployments
-- This guide explains how to update the Amazon ECR Docker images used in Kubernetes manifests:
- - `kubernetes-files/frontend-deploy-service.yaml`
-```bash
-containers:
-      - name: frontend
-        image: 421954350274.dkr.ecr.us-east-1.amazonaws.com/frontend  # replace your frontend image
-```
-
- - `kubernetes-files/backend-deployment.yaml`
-```bash
-containers:
-  - name: backend
-    image: 421954350274.dkr.ecr.us-east-1.amazonaws.com/backend   # replace your backend image
-```
----
 
 
 ---
@@ -563,8 +573,6 @@ data:
 
 
 
-
-
 ---
 
 ## Step 21:  Deploying with ArgoCD and Configuring Route 53 (Step-by-Step)
@@ -624,3 +632,5 @@ kubectl get namespaces
 5. Click **Create record**.
    
 ---
+
+
