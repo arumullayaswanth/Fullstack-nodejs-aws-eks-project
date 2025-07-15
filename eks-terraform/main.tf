@@ -129,7 +129,7 @@ data "aws_subnet" "subnet-2" {
  vpc_id = data.aws_vpc.main.id
  filter {
     name = "tag:Name"
-    values = ["Public-Subnet-2"]
+    values = ["Public-subnet-2"]
  }
 }
 data "aws_security_group" "selected" {
