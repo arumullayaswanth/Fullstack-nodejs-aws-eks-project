@@ -21,7 +21,7 @@ pipeline {
             steps {
                 script {
                     // Change directory into the 'client' folder, which contains the frontend code
-                    dir('Fullstack-nodejs-aws-eks-project/client') {
+                    dir('client') {
                         sh 'docker system prune -f' // Clean up unused Docker images/containers/networks/volumes
                         sh 'docker container prune -f' // Remove stopped containers
                         sh 'docker build -t frontend .' // Build Docker image for the frontend and tag it as 'frontend'
@@ -55,7 +55,7 @@ pipeline {
             }
             steps {
                 // Move into the 'kubernetes-files' directory
-                dir('Fullstack-nodejs-aws-eks-project/kubernetes-files') {
+                dir('kubernetes-files') {
                     // Use stored GitHub personal access token (PAT) credential
                     withCredentials([string(credentialsId: 'my-git-pattoken', variable: 'git_token')]) {
                         sh '''
