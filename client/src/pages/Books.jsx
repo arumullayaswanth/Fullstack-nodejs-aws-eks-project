@@ -33,7 +33,7 @@ const Books = () => {
 
   return (
     <div>
-      <h1>yaswanth Reddy Arumulla Book store </h1>
+      <h1> Yaswanth Reddy Arumulla Book Store 📚 </h1>
       <div className="books">
         {books.map((book) => (
           <div key={book.id} className="book">
