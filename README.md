@@ -70,9 +70,20 @@ cd ../terraform_main_ec2
 terraform init
 terraform plan
 terraform apply -auto-approve
+```
+3. example output :
+```bash
+Apply complete! Resources: 19 added, 0 changed, 0 destroyed.
+
+Outputs:
+
+jumphost_public_ip = "18.208.229.108"
+region = "us-east-1"
+```
+4. The command terraform state list is used to list all resources tracked in your current Terraform state file.
+```bash
 terraform state list
 ```
-
 ---
 
 ## 🐳 Step 6: Create Backend Image Repository (ECR)
@@ -99,6 +110,8 @@ Repeat the same steps as above:
 5. Click **Create repository**
 
 ---
+## ✅ step-8 and step-9 (Optional) 
+
 ## 🔍 Step 8: Get Docker Image URIs
 
 1. Go to **ECR Console**
@@ -186,7 +199,7 @@ http://<EC2 Public IP>:8080
 Click through: **Save and Continue → Save and Finish → Start using Jenkins**
 
 ---
-
+## 🔐 Step 12: it is a (Optional) 
 ## 🔐 Step 12: Add AWS Credentials in Jenkins
 
 1. In Jenkins Dashboard → **Manage Jenkins**
@@ -220,7 +233,7 @@ Click **Save** for both.
 
 ---
 
-## 🛠️ Step 13: Create a Jenkins Pipeline Job
+## 🛠️ Step 14: Create a Jenkins Pipeline Job
 
 1. Go to Jenkins Dashboard
 2. Click **New Item**
@@ -246,7 +259,7 @@ aws eks --region us-east-1 update-kubeconfig --name project-eks
 kubectl get nodes
 ```
 
-## 🖥️ step 14 : Connect to Private RDS from Jumphost EC2
+## 🖥️ step 15 : Connect to Private RDS from Jumphost EC2
 
 - My challenge is my database created a new database now I am going to create insider database some existing records.
 
@@ -298,7 +311,7 @@ kubectl get nodes
    SELECT * FROM books;
    exit
    ```
-## 📊 Books Table Data (Sample Output)
+### 📊 Books Table Data (Sample Output)
 
 ```text
 +----+------------+------------------------------------------------+--------+---------------------------------------------------------------+
@@ -313,23 +326,24 @@ kubectl get nodes
 **Note:**
 - You must run this from the EC2 instance in the same VPC as your RDS (the Jumphost).
 - If you want to use MySQL Workbench or other tools, set up an SSH tunnel through the Jumphost.
----
-## 🖥️ step 15 : 🎉 Install ArgoCD in Jumphost EC2
 
-### 1. Create Namespace for ArgoCD
+---
+## 🖥️ step 16 : 🎉 Install ArgoCD in Jumphost EC2
+
+### 16.1: Create Namespace for ArgoCD
 
 ```bash
 kubectl create namespace argocd
 ```
 
-### 2. Install ArgoCD in the Created Namespace
+### 16.2: Install ArgoCD in the Created Namespace
 
 ```bash
 kubectl apply -n argocd \
   -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
 ```
 
-### 3. Verify the Installation
+### 16.3: Verify the Installation
 
 ```bash
 kubectl get pods -n argocd
@@ -337,7 +351,7 @@ kubectl get pods -n argocd
 
 Ensure all pods are in `Running` state.
 
-### 4. Validate the Cluster
+### 16.4: Validate the Cluster
 
 Check your nodes and create a test pod if necessary:
 
@@ -345,7 +359,7 @@ Check your nodes and create a test pod if necessary:
 kubectl get nodes
 ```
 
-### 5. List All ArgoCD Resources
+### 16.5: List All ArgoCD Resources
 
 ```bash
 kubectl get all -n argocd
@@ -366,15 +380,15 @@ pod/argocd-server-5985b6cf6f-zzgx8                      1/1     Running   0     
 
 ---
 
-## 3. 🚀 Expose ArgoCD Server Using LoadBalancer
+### 16.6: 🚀 Expose ArgoCD Server Using LoadBalancer
 
-### 1. Edit the ArgoCD Server Service
+### 16.6.1: Edit the ArgoCD Server Service
 
 ```bash
 kubectl edit svc argocd-server -n argocd
 ```
 
-### 2. Change the Service Type
+### 16.6.2: Change the Service Type
 
 Find this line:
 
@@ -390,7 +404,7 @@ type: LoadBalancer
 
 Save and exit (`:wq` for `vi`).
 
-### 3. Get the External Load Balancer DNS
+### 16.6.3: Get the External Load Balancer DNS
 
 ```bash
 kubectl get svc argocd-server -n argocd
@@ -403,7 +417,7 @@ NAME            TYPE           CLUSTER-IP     EXTERNAL-IP                       
 argocd-server   LoadBalancer   172.20.1.100   a1b2c3d4e5f6.elb.amazonaws.com        80:31234/TCP,443:31356/TCP       2m
 ```
 
-### 4. Access the ArgoCD UI
+### 16.6.4: Access the ArgoCD UI
 
 Use the DNS:
 
@@ -413,7 +427,7 @@ https://<EXTERNAL-IP>.amazonaws.com
 
 ---
 
-## 4. 🔐 Get the Initial ArgoCD Admin Password
+### 16.7: 🔐 Get the Initial ArgoCD Admin Password
 
 ```bash
 kubectl get secret argocd-initial-admin-secret -n argocd \
@@ -424,9 +438,10 @@ kubectl get secret argocd-initial-admin-secret -n argocd \
 
 * **Username:** `admin`
 * **Password:** (The output of the above command)
+
 ---
 
-## Step 15: Create a Jenkins Pipeline Job for Backend and frondend & Route 53 Setup
+## Step 17: Create a Jenkins Pipeline Job for Backend and frondend & Route 53 Setup
 
 ### Prerequisites
 1. Go to AWS Route 53
@@ -452,7 +467,7 @@ export default API_BASE_URL;
 ```
 ---
 
-## 🔐 Step 16: Add GitHub PAT to Jenkins Credentials
+## 🔐 Step 17.1: Add GitHub PAT to Jenkins Credentials
 
 1. Navigate to **Jenkins Dashboard** → **Manage Jenkins** → **Credentials** → **(global)** → **Global credentials (unrestricted)**.
 2. Click **“Add Credentials”**.
@@ -464,7 +479,7 @@ export default API_BASE_URL;
 4. Click **“OK”** to save.
 
 
-### 🚀 step 16.1: ⚖️ Jenkins Pipeline Setup: Frontend
+### 🚀 step 17.2: ⚖️ Jenkins Pipeline Setup: Frontend
 
 1. Go to **Jenkins Dashboard**
 2. Click **New Item**
@@ -507,8 +522,13 @@ pipeline {
             steps {
                 script {
                     sh '''
+                    #Retrieve an authentication token and authenticate your Docker client to your registry. Use the AWS CLI:
                     aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 421954350274.dkr.ecr.us-east-1.amazonaws.com
+
+                    #After the build completes, tag your image so you can push the image to this repository:
                     docker tag frontend:latest 421954350274.dkr.ecr.us-east-1.amazonaws.com/frontend:${BUILD_NUMBER}
+
+                    #Run the following command to push this image to your newly created AWS repository:
                     docker push 421954350274.dkr.ecr.us-east-1.amazonaws.com/frontend:${BUILD_NUMBER}
                     '''
                 }
@@ -527,6 +547,8 @@ pipeline {
                             git config user.name "arumullayaswanth"
                             BUILD_NUMBER=${BUILD_NUMBER}
                             echo $BUILD_NUMBER
+
+                            # push this image to your git hub
                             sed -i "s#image:.*#image: 421954350274.dkr.ecr.us-east-1.amazonaws.com/frontend:$BUILD_NUMBER#g" frontend-deploy-service.yaml
                             git add .
                             git commit -m "Update deployment Image to version \${BUILD_NUMBER}"
@@ -546,7 +568,7 @@ pipeline {
 
 ---
 
-### 🚀 step 16.2:  📂 Jenkins Pipeline Setup: Backend
+### 🚀 step 17.3:  📂 Jenkins Pipeline Setup: Backend
 
 1. Go to **Jenkins Dashboard**
 2. Click **New Item**
@@ -589,9 +611,13 @@ pipeline {
             steps {
                 script {
                     sh '''
-                    
+                    #Retrieve an authentication token and authenticate your Docker client to your registry. Use the AWS CLI:
                     aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 421954350274.dkr.ecr.us-east-1.amazonaws.com
+
+                    #After the build completes, tag your image so you can push the image to this repository:
                     docker tag backend:latest 421954350274.dkr.ecr.us-east-1.amazonaws.com/backend:${BUILD_NUMBER}
+
+                    #Run the following command to push this image to your newly created AWS repository:
                     docker push 421954350274.dkr.ecr.us-east-1.amazonaws.com/backend:${BUILD_NUMBER}
                     '''
                 }
@@ -610,7 +636,9 @@ pipeline {
                             git config user.name "arumullayaswanth"
                             BUILD_NUMBER=${BUILD_NUMBER}
                             echo $BUILD_NUMBER
-                            sed -i "s#image:.*#image: 421954350274.dkr.ecr.us-east-1.amazonaws.com/backend::$BUILD_NUMBER#g" backend-deployment.yaml
+
+                            # push this image to your git hub
+                            sed -i "s#image:.*#image: 421954350274.dkr.ecr.us-east-1.amazonaws.com/backend:$BUILD_NUMBER#g" backend-deployment.yaml
                             git add .
                             git commit -m "Update deployment Image to version \${BUILD_NUMBER}"
                             git push https://${git_token}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:master
@@ -630,13 +658,13 @@ pipeline {
 
 ---
 
-## 🔍 Step 19: Creating Kubernetes Secret for RDS Access
+## 🔍 Step 18: Creating Kubernetes Secret for RDS Access
 
 This guide walks you through creating a Kubernetes `Secret` YAML file with your RDS credentials. These values need to be base64-encoded before being inserted into the secret manifest.
 
 ---
 
-### 🔐 Step 19.1: Kubernetes Secret Configuration
+### 🔐 Step 18.1: Kubernetes Secret Configuration
 
 Use the online tool [https://www.base64encode.org/](https://www.base64encode.org/) to encode each value.
 
@@ -659,7 +687,7 @@ Use the online tool [https://www.base64encode.org/](https://www.base64encode.org
 
 ---
 
-## 📄 Step 20 : Kubernetes Secret Configuration
+## 📄 Step 18.2: Kubernetes Secret Configuration
 - File: `kubernetes-files/secret.yaml`
 
 - This secret stores sensitive information such as the RDS endpoint, username, and password, encoded in Base64.
@@ -695,16 +723,16 @@ data:
 
 ---
 
-## Step 21:  Deploying with ArgoCD and Configuring Route 53 (Step-by-Step)
+## Step 19:  Deploying with ArgoCD and Configuring Route 53 (Step-by-Step)
 
-### 1. Create Namespace in EKS (from Jumphost EC2)
+### Step 19.1: Create Namespace in EKS (from Jumphost EC2)
 Run these commands on your jumphost EC2 server:
 ```bash
 kubectl create namespace dev
 kubectl get namespaces
 ```
 
-### 2. Create New Applicatio with ArgoCD
+### Step 19.2: Create New Applicatio with ArgoCD
 1. Open the **ArgoCD UI** in your browser.
 2. Click **+ NEW APP**.
 3. Fill in the following:
@@ -718,7 +746,7 @@ kubectl get namespaces
    - **Namespace:** `dev`
 4. Click **Create**.
 
-### 3. Configure Route 53 for Backend
+### Step 19.3: Configure Route 53 for Backend
 1. In ArgoCD UI, open your `project` application.
 2. Click on **backend** and copy the hostname (e.g.,
    `acfb06fba08834577a50e43724d328e3-1568967602.us-east-1.elb.amazonaws.com`).
@@ -731,7 +759,7 @@ kubectl get namespaces
    - **Alias target value:** Paste the backend load balancer DNS (from step 2)
 5. Click **Create record**.
 
-### 4. Verify Frontend Load Balancer Works
+### 19.4: Verify Frontend Load Balancer Works
 1. Go back to ArgoCD UI , open your `project` application.
 2. Click on **frontend** and copy the hostname (e.g.,
    `a5c516a43689c44278448cfe1de09089-409723786.us-east-1.elb.amazonaws.com`).
