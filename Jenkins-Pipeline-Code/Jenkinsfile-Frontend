@@ -1,92 +1,85 @@
-# first version in frontend
+// first version in frontend
+
 pipeline {
-    agent any 
+    agent any // Use any available Jenkins agent to run this pipeline
 
     stages {
-
         stage('Cleaning Workspace') {
             steps {
-                cleanWs() // Clean the Jenkins workspace before starting
+                cleanWs() // Clean up any files from previous builds in the Jenkins workspace
             }
         }
 
         stage('Checkout from Git') {
             steps {
-                sh '''
-                # Clone the GitHub repository from master branch
-                git clone -b master https://github.com/arumullayaswanth/Fullstack-nodejs-aws-eks-project.git
-                '''
+                // Clone the 'master' branch of your GitHub repository
+                git branch: 'master', url: 'https://github.com/arumullayaswanth/Fullstack-nodejs-aws-eks-project.git'
             }
         }
 
         stage("Docker Image Build") {
             steps {
-                dir('Fullstack-nodejs-aws-eks-project/client') {
-                    sh '''
-                    # Remove all unused Docker data (volumes, networks, build cache, etc.)
-                    docker system prune -f
-                    
-                    # Remove all stopped containers
-                    docker container prune -f
-                    
-                    # Build Docker image and tag it as "frontend"
-                    docker build -t frontend .
-                    '''
+                script {
+                    // Change directory into the 'client' folder, which contains the frontend code
+                    dir('Fullstack-nodejs-aws-eks-project/client') {
+                        sh 'docker system prune -f' // Clean up unused Docker images/containers/networks/volumes
+                        sh 'docker container prune -f' // Remove stopped containers
+                        sh 'docker build -t frontend .' // Build Docker image for the frontend and tag it as 'frontend'
+                    }
                 }
             }
         }
 
         stage("ECR Image Pushing") {
             steps {
-                sh '''
-                # Login to AWS ECR with credentials
-                aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 421954350274.dkr.ecr.us-east-1.amazonaws.com
-
-                # Tag the frontend image with ECR repository and Jenkins build number
-                docker tag frontend:latest 421954350274.dkr.ecr.us-east-1.amazonaws.com/frontend:${BUILD_NUMBER}
-
-                # Push the tagged image to ECR
-                docker push 421954350274.dkr.ecr.us-east-1.amazonaws.com/frontend:${BUILD_NUMBER}
-                '''
+                script {
+                    // Shell script to authenticate with AWS ECR and push Docker image
+                    sh '''
+                    aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 421954350274.dkr.ecr.us-east-1.amazonaws.com
+                    docker tag frontend:latest 421954350274.dkr.ecr.us-east-1.amazonaws.com/frontend:${BUILD_NUMBER}
+                    docker push 421954350274.dkr.ecr.us-east-1.amazonaws.com/frontend:${BUILD_NUMBER}
+                    '''
+                    // Steps:
+                    // 1. Log in to AWS ECR using credentials from `aws ecr get-login-password`
+                    // 2. Tag the image with your ECR repo and the Jenkins build number
+                    // 3. Push the image to your ECR repository
+                }
             }
         }
 
         stage('Update Deployment file') {
             environment {
+                // Define environment variables for use in this stage
                 GIT_REPO_NAME = "Fullstack-nodejs-aws-eks-project"
                 GIT_USER_NAME = "arumullayaswanth"
             }
             steps {
+                // Move into the 'kubernetes-files' directory
                 dir('Fullstack-nodejs-aws-eks-project/kubernetes-files') {
+                    // Use stored GitHub personal access token (PAT) credential
                     withCredentials([string(credentialsId: 'my-git-pattoken', variable: 'git_token')]) {
                         sh '''
-                        # Set Git user config
-                        git config user.email "Yaswanth.arumulla@gmail.com"
-                        git config user.name "arumullayaswanth"
+                            git config user.email "Yaswanth.arumulla@gmail.com" // Set Git user email
+                            git config user.name "arumullayaswanth" // Set Git user name
 
-                        # Print the build number
-                        BUILD_NUMBER=${BUILD_NUMBER}
-                        echo $BUILD_NUMBER
+                            BUILD_NUMBER=${BUILD_NUMBER} // Capture Jenkins build number into a shell variable
+                            echo $BUILD_NUMBER // Print the build number for logging
 
-                        # Update the image tag in the Kubernetes YAML file
-                        sed -i "s#image:.*#image: 421954350274.dkr.ecr.us-east-1.amazonaws.com/frontend:$BUILD_NUMBER#g" frontend-deploy-service.yaml
+                            // Replace the image line in the YAML with the new image tag using sed
+                            sed -i "s#image:.*#image: 421954350274.dkr.ecr.us-east-1.amazonaws.com/frontend:$BUILD_NUMBER#g" frontend-deploy-service.yaml
 
-                        # Add the modified file to Git
-                        git add frontend-deploy-service.yaml
-
-                        # Commit the change with the build number in the message
-                        git commit -m "Update deployment Image to version \${BUILD_NUMBER}"
-
-                        # Push changes back to GitHub using personal access token
-                        git push https://${git_token}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:master
+                            git add . // Stage the modified deployment file
+                            git commit -m "Update deployment Image to version \${BUILD_NUMBER}" // Commit the change
+                            // Push the commit back to GitHub using the PAT
+                            git push https://${git_token}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:master
                         '''
                     }
                 }
             }
         }
-
     }
 }
+
 
 
 
