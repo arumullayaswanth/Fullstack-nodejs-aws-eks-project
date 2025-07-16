@@ -478,7 +478,67 @@ export default API_BASE_URL;
    * In **Script**, enter:
 
 ```bash
-code
+pipeline {
+    agent any 
+
+    stages {
+        stage('Cleaning Workspace') {
+            steps {
+                cleanWs()
+            }
+        }
+        stage('Checkout from Git') {
+            steps {
+                git branch: 'master', url: 'https://github.com/arumullayaswanth/Fullstack-nodejs-aws-eks-project.git'
+            }
+        }
+        stage("Docker Image Build") {
+            steps {
+                script {
+                    dir('client') {
+                        sh 'docker system prune -f'
+                        sh 'docker container prune -f'
+                        sh 'docker build -t frontend .'
+                    }
+                }
+            }
+        }
+        stage("ECR Image Pushing") {
+            steps {
+                script {
+                    sh '''
+                    aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 421954350274.dkr.ecr.us-east-1.amazonaws.com
+                    docker tag frontend:latest 421954350274.dkr.ecr.us-east-1.amazonaws.com/frontend:${BUILD_NUMBER}
+                    docker push 421954350274.dkr.ecr.us-east-1.amazonaws.com/frontend:${BUILD_NUMBER}
+                    '''
+                }
+            }
+        }
+        stage('Update Deployment file') {
+            environment {
+                GIT_REPO_NAME = "Fullstack-nodejs-aws-eks-project"
+                GIT_USER_NAME = "arumullayaswanth"
+            }
+            steps {
+                dir('kubernetes-files') {
+                    withCredentials([string(credentialsId: 'my-git-pattoken', variable: 'git_token')]) {
+                        sh '''
+                            git config user.email "Yaswanth.arumulla@gmail.com"
+                            git config user.name "arumullayaswanth"
+                            BUILD_NUMBER=${BUILD_NUMBER}
+                            echo $BUILD_NUMBER
+                            sed -i "s#image:.*#image: 421954350274.dkr.ecr.us-east-1.amazonaws.com/frontend:$BUILD_NUMBER#g" frontend-deploy-service.yaml
+                            git add .
+                            git commit -m "Update deployment Image to version \${BUILD_NUMBER}"
+                            git push https://${git_token}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:master
+        
+                        '''
+                    }
+                }
+            }
+        }
+    }
+}
 ```
 
 4. Click **Save**
@@ -500,7 +560,67 @@ code
    * In **Script**, enter:
 
 ```bash
-code
+pipeline {
+    agent any 
+
+    stages {
+        stage('Cleaning Workspace') {
+            steps {
+                cleanWs()
+            }
+        }
+        stage('Checkout from Git') {
+            steps {
+                git branch: 'master', url: 'https://github.com/arumullayaswanth/Fullstack-nodejs-aws-eks-project.git'
+            }
+        }
+        stage("Docker Image Build") {
+            steps {
+                script {
+                    dir('backend') {
+                        sh 'docker system prune -f'
+                        sh 'docker container prune -f'
+                        sh 'docker build -t backend .'
+                    }
+                }
+            }
+        }
+        stage("ECR Image Pushing") {
+            steps {
+                script {
+                    sh '''
+                    
+                    aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 421954350274.dkr.ecr.us-east-1.amazonaws.com
+                    docker tag backend:latest 421954350274.dkr.ecr.us-east-1.amazonaws.com/backend:${BUILD_NUMBER}
+                    docker push 421954350274.dkr.ecr.us-east-1.amazonaws.com/backend:${BUILD_NUMBER}
+                    '''
+                }
+            }
+        }
+        stage('Update Deployment file') {
+            environment {
+                GIT_REPO_NAME = "Fullstack-nodejs-aws-eks-project"
+                GIT_USER_NAME = "arumullayaswanth"
+            }
+            steps {
+                dir('kubernetes-files') {
+                    withCredentials([string(credentialsId: 'my-git-pattoken', variable: 'git_token')]) {
+                        sh '''
+                            git config user.email "yaswanth.arumulla@gmail.com"
+                            git config user.name "arumullayaswanth"
+                            BUILD_NUMBER=${BUILD_NUMBER}
+                            echo $BUILD_NUMBER
+                            sed -i "s#image:.*#image: 421954350274.dkr.ecr.us-east-1.amazonaws.com/backend::$BUILD_NUMBER#g" backend-deployment.yaml
+                            git add .
+                            git commit -m "Update deployment Image to version \${BUILD_NUMBER}"
+                            git push https://${git_token}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:master
+                        '''
+                    }
+                }
+            }
+        }
+    }
+} 
 ```
 
 4. Click **Save**
@@ -630,6 +750,39 @@ kubectl get namespaces
    - **Region:** `US East (N. Virginia)`
    - **Alias target value:** Paste the frontend load balancer DNS (from step 2)
 5. Click **Create record**.
+
+
+### 6. 🔐 Enable HTTPS with ACM and Route 53 (Step-by-Step)
+
+#### 6.1: Request a Public Certificate in ACM
+1. Go to **AWS Certificate Manager (ACM)** in the AWS Console.
+2. Click **Request a certificate**.
+3. Select **Request a public certificate** and click **Next**.
+4. Enter your domain name: `aluru.site` (and optionally `www.aluru.site`).
+5. Choose **DNS validation (recommended)**.
+6. Click **Request**.
+
+#### 6.22: Validate Domain in Route 53
+1. In ACM, go to **Certificates** and select your new certificate.
+2. Under the domain, click **Create DNS record in Amazon Route 53**.
+3. Select your hosted zone: `aluru.site`.
+4. Click **Create record**.
+5. Wait a few minutes for validation to complete (Status: **Issued**).
+
+#### 6.3: Add HTTPS Listener to Load Balancer
+1. Go to **EC2 Console** → **Load Balancers** → select your frontend ALB (e.g., `frontend-alb`).
+2. Go to the **Listeners** tab.
+3. Click **Add listener**:
+   - **Protocol:** HTTPS
+   - **Port:** 443
+   - **Action:** Forward to your web target group
+   - **Security policy:** ELBSecurityPolicy-2021-06 (or latest)
+   - **Select ACM Certificate:** Choose the one for `aluru.site`
+4. Click **Add**.
+
+#### 6.4: Access Your Application
+1. Open your browser and go to: https://aluru.site
+2. Your application should now be accessible over HTTPS!
    
 ---
 
