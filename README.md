@@ -791,5 +791,15 @@ kubectl get namespaces
 ```bash
 terraform destroy -auto-approve
 ```
+- in ec2 instance
+   - To verify deletion:
+  ```bashS
+  kubectl get namespaces
+  ```
+  ```bash
+  kubectl delete namespace <namespace-name>
+  kubectl delete all --all --all-namespaces
+```
+- eg: `kubectl delete namespace argocd`
 
 
