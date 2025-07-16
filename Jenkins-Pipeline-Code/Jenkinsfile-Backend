@@ -21,7 +21,7 @@ pipeline {
             steps {
                 script {
                     // Navigate to 'backend' directory
-                    dir('backend') {
+                    dir('Fullstack-nodejs-aws-eks-project/backend') {
                         sh 'docker system prune -f' // Removes unused Docker data (containers, images, etc.)
                         sh 'docker container prune -f' // Specifically removes all stopped containers
                         sh 'docker build -t backend .' // Builds Docker image with the tag 'backend' from Dockerfile in current dir
@@ -55,7 +55,7 @@ pipeline {
             }
             steps {
                 // Navigate into 'kubernetes-files' directory
-                dir('kubernetes-files') {
+                dir('Fullstack-nodejs-aws-eks-project/kubernetes-files') {
                     // Use GitHub personal access token credentials
                     withCredentials([string(credentialsId: 'my-git-pattoken', variable: 'git_token')]) {
                         // Shell script to update Kubernetes deployment file
