@@ -786,4 +786,10 @@ kubectl get namespaces
    
 ---
 
+## 💣 Destroy All Terraform Resources
+
+```bash
+terraform destroy -auto-approve
+```
+
 
