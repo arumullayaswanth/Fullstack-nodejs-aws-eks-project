@@ -73,7 +73,7 @@ pipeline {
                             echo $BUILD_NUMBER
                         
                             # Replace the image line in the YAML with the new image tag using sed
-                            sed -i "s#image:.*#image: 421954350274.dkr.ecr.us-east-1.amazonaws.com/backend::$BUILD_NUMBER#g" backend-deployment.yaml
+                            sed -i "s#image:.*#image: 421954350274.dkr.ecr.us-east-1.amazonaws.com/backend:$BUILD_NUMBER#g" backend-deployment.yaml
                         
                             # Stage the modified deployment file for commit
                             git add .
