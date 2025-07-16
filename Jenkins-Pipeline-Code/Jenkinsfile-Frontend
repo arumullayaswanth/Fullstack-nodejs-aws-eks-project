@@ -1,3 +1,125 @@
+# first version in frontend
+pipeline {
+    agent any 
+
+    stages {
+
+        stage('Cleaning Workspace') {
+            steps {
+                cleanWs() // Clean the Jenkins workspace before starting
+            }
+        }
+
+        stage('Checkout from Git') {
+            steps {
+                sh '''
+                # Clone the GitHub repository from master branch
+                git clone -b master https://github.com/arumullayaswanth/Fullstack-nodejs-aws-eks-project.git
+                '''
+            }
+        }
+
+        stage("Docker Image Build") {
+            steps {
+                dir('Fullstack-nodejs-aws-eks-project/client') {
+                    sh '''
+                    # Remove all unused Docker data (volumes, networks, build cache, etc.)
+                    docker system prune -f
+                    
+                    # Remove all stopped containers
+                    docker container prune -f
+                    
+                    # Build Docker image and tag it as "frontend"
+                    docker build -t frontend .
+                    '''
+                }
+            }
+        }
+
+        stage("ECR Image Pushing") {
+            steps {
+                sh '''
+                # Login to AWS ECR with credentials
+                aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 421954350274.dkr.ecr.us-east-1.amazonaws.com
+
+                # Tag the frontend image with ECR repository and Jenkins build number
+                docker tag frontend:latest 421954350274.dkr.ecr.us-east-1.amazonaws.com/frontend:${BUILD_NUMBER}
+
+                # Push the tagged image to ECR
+                docker push 421954350274.dkr.ecr.us-east-1.amazonaws.com/frontend:${BUILD_NUMBER}
+                '''
+            }
+        }
+
+        stage('Update Deployment file') {
+            environment {
+                GIT_REPO_NAME = "Fullstack-nodejs-aws-eks-project"
+                GIT_USER_NAME = "arumullayaswanth"
+            }
+            steps {
+                dir('Fullstack-nodejs-aws-eks-project/kubernetes-files') {
+                    withCredentials([string(credentialsId: 'my-git-pattoken', variable: 'git_token')]) {
+                        sh '''
+                        # Set Git user config
+                        git config user.email "Yaswanth.arumulla@gmail.com"
+                        git config user.name "arumullayaswanth"
+
+                        # Print the build number
+                        BUILD_NUMBER=${BUILD_NUMBER}
+                        echo $BUILD_NUMBER
+
+                        # Update the image tag in the Kubernetes YAML file
+                        sed -i "s#image:.*#image: 421954350274.dkr.ecr.us-east-1.amazonaws.com/frontend:$BUILD_NUMBER#g" frontend-deploy-service.yaml
+
+                        # Add the modified file to Git
+                        git add frontend-deploy-service.yaml
+
+                        # Commit the change with the build number in the message
+                        git commit -m "Update deployment Image to version \${BUILD_NUMBER}"
+
+                        # Push changes back to GitHub using personal access token
+                        git push https://${git_token}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:master
+                        '''
+                    }
+                }
+            }
+        }
+
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 pipeline {
     agent any 
     tools {
