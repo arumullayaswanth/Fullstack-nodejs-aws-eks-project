@@ -1,3 +1,110 @@
+// first version
+
+pipeline {
+    agent any // Run the pipeline on any available agent
+
+    stages {
+        stage('Cleaning Workspace') {
+            steps {
+                cleanWs() // Clears the workspace before starting the build (removes old files)
+            }
+        }
+
+        stage('Checkout from Git') {
+            steps {
+                // Clones the 'master' branch of your GitHub repository
+                git branch: 'master', url: 'https://github.com/arumullayaswanth/Fullstack-nodejs-aws-eks-project.git'
+            }
+        }
+
+        stage("Docker Image Build") {
+            steps {
+                script {
+                    // Navigate to 'backend' directory
+                    dir('backend') {
+                        sh 'docker system prune -f' // Removes unused Docker data (containers, images, etc.)
+                        sh 'docker container prune -f' // Specifically removes all stopped containers
+                        sh 'docker build -t backend .' // Builds Docker image with the tag 'backend' from Dockerfile in current dir
+                    }
+                }
+            }
+        }
+
+        stage("ECR Image Pushing") {
+            steps {
+                script {
+                    // Shell script block to login and push Docker image to AWS ECR
+                    sh '''
+                    aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 421954350274.dkr.ecr.us-east-1.amazonaws.com
+                    docker tag backend:latest 421954350274.dkr.ecr.us-east-1.amazonaws.com/backend:${BUILD_NUMBER}
+                    docker push 421954350274.dkr.ecr.us-east-1.amazonaws.com/backend:${BUILD_NUMBER}
+                    '''
+                    // Explanation:
+                    // 1. Authenticate Docker to AWS ECR.
+                    // 2. Tag the local image 'backend:latest' with the remote ECR repo name and Jenkins build number.
+                    // 3. Push the image to ECR.
+                }
+            }
+        }
+
+        stage('Update Deployment file') {
+            environment {
+                // Set environment variables for Git repo name and user name
+                GIT_REPO_NAME = "Fullstack-nodejs-aws-eks-project"
+                GIT_USER_NAME = "arumullayaswanth"
+            }
+            steps {
+                // Navigate into 'kubernetes-files' directory
+                dir('kubernetes-files') {
+                    // Use GitHub personal access token credentials
+                    withCredentials([string(credentialsId: 'my-git-pattoken', variable: 'git_token')]) {
+                        // Shell script to update Kubernetes deployment file
+                        sh '''
+                            git config user.email "yaswanth.arumulla@gmail.com" // Set Git user email
+                            git config user.name "arumullayaswanth" // Set Git user name
+                            BUILD_NUMBER=${BUILD_NUMBER} // Set a local shell variable
+                            echo $BUILD_NUMBER // Print the build number
+                            
+                            // Replace the image tag in backend-deployment.yaml with the new build number
+                            sed -i "s#image:.*#image: 421954350274.dkr.ecr.us-east-1.amazonaws.com/backend::$BUILD_NUMBER#g" backend-deployment.yaml
+                            
+                            // Stage, commit, and push the updated deployment file
+                            git add .
+                            git commit -m "Update deployment Image to version \${BUILD_NUMBER}"
+                            git push https://${git_token}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:master
+                        '''
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 pipeline {
     agent any 
     tools {
