@@ -79,7 +79,7 @@ pipeline {
                             git add .
                         
                             # Commit the change with a message including the build number
-                            git commit -m "Update deployment Image to version ${BUILD_NUMBER}"
+                            git commit -m "Update deployment Image to version \${BUILD_NUMBER}"
                         
                             # Push the commit back to GitHub using the stored personal access token (PAT)
                             git push https://${git_token}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:master
