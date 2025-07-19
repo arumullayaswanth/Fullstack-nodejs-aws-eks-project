@@ -84,6 +84,7 @@ region = "us-east-1"
 ```bash
 terraform state list
 ```
+
 ---
 
 ## 🐳 Step 6: Create Backend Image Repository (ECR)
