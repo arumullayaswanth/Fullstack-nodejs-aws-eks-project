@@ -234,7 +234,7 @@ Click **Save** for both.
 
 ---
 
-## 🛠️ Step 14: Create a Jenkins Pipeline Job
+## 🛠️ Step 14: Create a Jenkins Pipeline Job (Create EKS Cluster)
 
 1. Go to Jenkins Dashboard
 2. Click **New Item**
