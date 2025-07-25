@@ -1,124 +1,3 @@
-// first version
-
-pipeline {
-    agent any // Run the pipeline on any available agent
-
-    stages {
-        stage('Cleaning Workspace') {
-            steps {
-                cleanWs() // Clears the workspace before starting the build (removes old files)
-            }
-        }
-
-        stage('Checkout from Git') {
-            steps {
-                // Clones the 'master' branch of your GitHub repository
-                git branch: 'master', url: 'https://github.com/arumullayaswanth/Fullstack-nodejs-aws-eks-project.git'
-            }
-        }
-
-        stage("Docker Image Build") {
-            steps {
-                script {
-                    // Navigate to 'backend' directory
-                    dir('backend') {
-                        sh 'docker system prune -f' // Removes unused Docker data (containers, images, etc.)
-                        sh 'docker container prune -f' // Specifically removes all stopped containers
-                        sh 'docker build -t backend .' // Builds Docker image with the tag 'backend' from Dockerfile in current dir
-                    }
-                }
-            }
-        }
-
-        stage("ECR Image Pushing") {
-            steps {
-                script {
-                    // Shell script block to login and push Docker image to AWS ECR
-                    sh '''
-                    aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 421954350274.dkr.ecr.us-east-1.amazonaws.com
-                    docker tag backend:latest 421954350274.dkr.ecr.us-east-1.amazonaws.com/backend:${BUILD_NUMBER}
-                    docker push 421954350274.dkr.ecr.us-east-1.amazonaws.com/backend:${BUILD_NUMBER}
-                    '''
-                    // Explanation:
-                    // 1. Authenticate Docker to AWS ECR.
-                    // 2. Tag the local image 'backend:latest' with the remote ECR repo name and Jenkins build number.
-                    // 3. Push the image to ECR.
-                }
-            }
-        }
-
-        stage('Update Deployment file') {
-            environment {
-                // Set environment variables for Git repo name and user name
-                GIT_REPO_NAME = "Fullstack-nodejs-aws-eks-project"
-                GIT_USER_NAME = "arumullayaswanth"
-            }
-            steps {
-                // Navigate into 'kubernetes-files' directory
-                dir('kubernetes-files') {
-                    // Use GitHub personal access token credentials
-                    withCredentials([string(credentialsId: 'my-git-pattoken', variable: 'git_token')]) {
-                        // Shell script to update Kubernetes deployment file
-                        sh '''
-                            # Set Git user email for committing
-                            git config user.email "Yaswanth.arumulla@gmail.com"
-                        
-                            # Set Git user name for committing
-                            git config user.name "arumullayaswanth"
-                        
-                            # Capture Jenkins build number into a shell variable
-                            BUILD_NUMBER=${BUILD_NUMBER}
-                        
-                            # Print the build number (for debugging/logging)
-                            echo $BUILD_NUMBER
-                        
-                            # Replace the image line in the YAML with the new image tag using sed
-                            sed -i "s#image:.*#image: 421954350274.dkr.ecr.us-east-1.amazonaws.com/backend:$BUILD_NUMBER#g" backend-deployment.yaml
-                        
-                            # Stage the modified deployment file for commit
-                            git add .
-                        
-                            # Commit the change with a message including the build number
-                            git commit -m "Update deployment Image to version \${BUILD_NUMBER}"
-                        
-                            # Push the commit back to GitHub using the stored personal access token (PAT)
-                            git push https://${git_token}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:master
-                        '''
-                    }
-                }
-            }
-        }
-    }
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 pipeline {
     agent any 
     tools {
@@ -126,11 +5,13 @@ pipeline {
         nodejs 'nodejs'
     }
     environment  {
-        SCANNER_HOME=tool 'sonar-scanner'
-        AWS_ACCOUNT_ID = credentials('ACCOUNT_ID')
-        AWS_ECR_REPO_NAME = credentials('ECR_REPO2')
-        AWS_DEFAULT_REGION = 'us-east-1'
-        REPOSITORY_URI = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/"
+        SCANNER_HOME = tool 'sonar-scanner'                // replace your sonarqube scanner name
+        SONARQUBE_SERVER = 'sonar-server'                  // replace your Jenkins global SonarQube server name (Manage Jenkins > Configure System)
+        AWS_ACCOUNT_ID = '421954350274'                    // replace AWS account ID
+        AWS_ECR_REPO_NAME = 'swiggy'                       // replace ECR repository name
+        SONAR_TOKEN_CRED = 'sonarqube-token'               // Jenkins secret text credential id
+        AWS_DEFAULT_REGION = 'us-east-1'                   // replace AWS region
+        REPOSITORY_URI = "421954350274.dkr.ecr.us-east-1.amazonaws.com" // replace your repository URL
     }
     stages {
         stage('Cleaning Workspace') {
@@ -140,16 +21,23 @@ pipeline {
         }
         stage('Checkout from Git') {
             steps {
-                git branch: 'main', url: 'https://github.com/CloudTechDevOps/2nd10WeeksofCloudOps-main.git'
+                git branch: 'master', url: 'https://github.com/arumullayaswanth/Swiggy-GitOps-project.git'
+            }
+        }
+        stage("List Files") {
+            steps {
+                sh 'ls -la' // verify files after checkout
             }
         }
         stage('Sonarqube Analysis') {
             steps {
-                dir('backend') {
-                    withSonarQubeEnv('sonar-server') {
-                        sh ''' $SCANNER_HOME/bin/sonar-scanner \
-                        -Dsonar.projectName=three-tier-backend \
-                        -Dsonar.projectKey=three-tier-backend '''
+                dir('Swiggy') {
+                    withSonarQubeEnv(env.SONARQUBE_SERVER) {
+                        sh ''' 
+                        ${SCANNER_HOME}/bin/sonar-scanner \
+                        -Dsonar.projectName=swiggy \
+                        -Dsonar.projectKey=swiggy 
+                        '''
                     }
                 }
             }
@@ -157,13 +45,39 @@ pipeline {
         stage('Quality Check') {
             steps {
                 script {
-                    waitForQualityGate abortPipeline: false, credentialsId: 'sonar-token' 
+                    waitForQualityGate abortPipeline: false, credentialsId: env.SONAR_TOKEN_CRED 
                 }
             }
         }
+        stage('Install Dependencies') {
+            steps {
+                sh '''
+                cd Swiggy
+                ls -la  # Verify package.json exists
+                if [ -f package.json ]; then
+                    rm -rf node_modules package-lock.json  # Remove old dependencies
+                    npm install  # Install fresh dependencies
+                else
+                    echo "Error: package.json not found in Swiggy!"
+                    exit 1
+                fi
+                '''
+            }
+        }
+
+        // this step will take 45 min
+        stage('OWASP FS Scan') {
+            steps {
+                dir('Swiggy') {   // Ensure you are scanning the right folder
+                    dependencyCheck additionalArguments: '--scan . --disableYarnAudit --disableNodeAudit', odcInstallation: 'DP-Check'
+                    dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
+                }
+            }
+        }
+
         stage('Trivy File Scan') {
             steps {
-                dir('backend') {
+                dir('client') {
                     sh 'trivy fs . > trivyfs.txt'
                 }
             }
@@ -171,10 +85,10 @@ pipeline {
         stage("Docker Image Build") {
             steps {
                 script {
-                    dir('backend') {
-                            sh 'docker system prune -f'
-                            sh 'docker container prune -f'
-                            sh 'docker build -t ${AWS_ECR_REPO_NAME} .'
+                    dir('Swiggy') {
+                        sh 'docker system prune -f'
+                        sh 'docker container prune -f'
+                        sh 'docker build -t ${AWS_ECR_REPO_NAME} .'
                     }
                 }
             }
@@ -182,9 +96,9 @@ pipeline {
         stage("ECR Image Pushing") {
             steps {
                 script {
-                        sh 'aws ecr get-login-password --region ${AWS_DEFAULT_REGION} | docker login --username AWS --password-stdin ${REPOSITORY_URI}'
-                        sh 'docker tag ${AWS_ECR_REPO_NAME} ${REPOSITORY_URI}${AWS_ECR_REPO_NAME}:${BUILD_NUMBER}'
-                        sh 'docker push ${REPOSITORY_URI}${AWS_ECR_REPO_NAME}:${BUILD_NUMBER}'
+                    sh 'aws ecr get-login-password --region ${AWS_DEFAULT_REGION} | docker login --username AWS --password-stdin ${REPOSITORY_URI}'
+                    sh 'docker tag ${AWS_ECR_REPO_NAME}:latest ${REPOSITORY_URI}/${AWS_ECR_REPO_NAME}:${BUILD_NUMBER}'
+                    sh 'docker push ${REPOSITORY_URI}/${AWS_ECR_REPO_NAME}:${BUILD_NUMBER}'
                 }
             }
         }
@@ -195,30 +109,48 @@ pipeline {
         }
         stage('Checkout Code') {
             steps {
-                git branch: 'main', url: 'https://github.com/CloudTechDevOps/2nd10WeeksofCloudOps-main.git'
+                git branch: 'master', url: 'https://github.com/arumullayaswanth/Swiggy-GitOps-project.git'
             }
         }
         stage('Update Deployment file') {
             environment {
-                GIT_REPO_NAME = "2nd10WeeksofCloudOps-main"
-                GIT_USER_NAME = "CloudTechDevOps"
+                GIT_REPO_NAME = "Swiggy-GitOps-project"      // replace your github rep name
+                GIT_EMAIL = "yaswanth.arumulla@gmail.com"    // replace your email id
+                GIT_USER_NAME = "arumullayaswanth"           // replace your user name
+                YAML_FILE = "deployment.yml"
             }
             steps {
                 dir('kubernetes-files') {
                     withCredentials([string(credentialsId: 'my-git-pattoken', variable: 'git_token')]) {
                         sh '''
-                            git config user.email "cloud87777@gmail.com"
-                            git config user.name "CloudTechDevOps"
+                            git config user.email "${GIT_EMAIL}"
+                            git config user.name "${GIT_USER_NAME}"
                             BUILD_NUMBER=${BUILD_NUMBER}
                             echo $BUILD_NUMBER
-                            sed -i "s#image:.*#image: $REPOSITORY_URI$AWS_ECR_REPO_NAME:$BUILD_NUMBER#g" backend-deployment.yaml
+
+                            sed -i "s#image:.*#image: ${REPOSITORY_URI}/${AWS_ECR_REPO_NAME}:$BUILD_NUMBER#g" ${YAML_FILE}
                             git add .
-                            git commit -m "Update deployment Image to version \${BUILD_NUMBER}"
-                            git push https://${git_token}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:main
+                            git commit -m "Update ${AWS_ECR_REPO_NAME} Image to version \${BUILD_NUMBER}"
+                            git push https://${git_token}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:master
                         '''
                     }
                 }
             }
+        }
+    }
+    post {
+        always {
+            emailext(
+                attachLog: true,
+                subject: "'${currentBuild.result}'",
+                body: """
+                    Project: ${env.JOB_NAME}<br/>
+                    Build Number: ${env.BUILD_NUMBER}<br/>
+                    URL: ${env.BUILD_URL}<br/>
+                """,
+                to: 'yaswanth.arumulla@gmail.com',
+                attachmentsPattern: 'trivyfs.txt,trivyimage.txt,**/dependency-check-report.xml'
+            )
         }
     }
 }
