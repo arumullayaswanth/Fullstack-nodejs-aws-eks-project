@@ -1,0 +1,53 @@
+# Node / frontend
+node_modules/
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnpm-store/
+.parcel-cache/
+.next/
+.nuxt/
+.turbo/
+dist/
+build/
+coverage/
+*.tsbuildinfo
+
+# Environment & secrets
+#.env
+#.env.*
+#!.env.example
+
+# Logs & runtime output
+#logs/
+#*.log
+#*.out
+#*.pid
+#*.seed
+#*.pid.lock
+
+# IDE / editor
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# Terraform / infra
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terragrunt-cache/
+*.terraform.lock.hcl
+
+# Docker
+*.tar
+.docker/
+
+# Misc
+tmp/
+temp/
