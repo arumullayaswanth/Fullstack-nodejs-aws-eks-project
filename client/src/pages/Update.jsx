@@ -2,6 +2,7 @@ import axios from "axios";
 import React, { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import API_BASE_URL from "./config";
+import SocialLinks from "../components/SocialLinks";
 
 const Update = () => {
   const [book, setBook] = useState({ title: "", desc: "", price: "", cover: "" });
@@ -58,6 +59,7 @@ const Update = () => {
           {error && <div className="empty" style={{ borderStyle: "solid", margin: 0 }}>{error}</div>}
         </form>
       </div>
+      <SocialLinks />
     </div>
   );
 };

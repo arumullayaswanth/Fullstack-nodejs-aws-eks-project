@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState, useCallback } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import API_BASE_URL from "./config";
+import SocialLinks from "../components/SocialLinks";
 
 const META_KEY = "ya_book_meta_v1";
 const REVIEWS_KEY = "ya_book_reviews_v1";
@@ -640,6 +641,8 @@ const Books = () => {
           </div>
         </div>
       )}
+
+      <SocialLinks />
     </div>
   );
 };

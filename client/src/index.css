@@ -453,6 +453,227 @@ a { color: inherit; text-decoration: none; }
   grid-column: 1 / -1;
 }
 
+.social-footer {
+  margin-top: 28px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.social-row {
+  margin-top: 10px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.contrib-note {
+  margin: 10px 0 0;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.repo-link {
+  color: #9ed0ff;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.repo-link:hover {
+  color: #c9e5ff;
+}
+
+.social-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.02);
+  transition: transform 0.18s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.social-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.25);
+}
+
+.social-logo {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+}
+
+.social-btn.linkedin .social-logo {
+  background: #0a66c2;
+  color: #fff;
+}
+
+.social-btn.github .social-logo {
+  background: #111827;
+  color: #fff;
+}
+
+.social-btn.medium .social-logo {
+  background: #16a34a;
+  color: #fff;
+}
+
+.social-btn.youtube .social-logo {
+  background: #ff0000;
+  color: #fff;
+}
+
+.support-fab {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  width: 64px;
+  height: 64px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: linear-gradient(135deg, #ffb347, #f97316);
+  color: #0b1222;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.35);
+  z-index: 80;
+}
+
+.support-panel {
+  position: fixed;
+  right: 20px;
+  bottom: 96px;
+  width: min(380px, calc(100vw - 28px));
+  max-height: min(74vh, 620px);
+  display: grid;
+  grid-template-rows: auto auto 1fr auto;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: #0d1730;
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.45);
+  z-index: 80;
+  overflow: hidden;
+}
+
+.support-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.support-title {
+  font-weight: 800;
+}
+
+.support-sub {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.support-close {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.support-suggested {
+  padding: 10px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.support-chip {
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--muted);
+  font-size: 12px;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+.support-body {
+  padding: 10px;
+  overflow: auto;
+  display: grid;
+  gap: 8px;
+}
+
+.support-msg {
+  max-width: 88%;
+  border-radius: 12px;
+  padding: 9px 10px;
+  line-height: 1.4;
+  font-size: 14px;
+}
+
+.support-msg.bot {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.05);
+  justify-self: start;
+}
+
+.support-msg.user {
+  background: linear-gradient(135deg, #14b8a6, #0ea5e9);
+  color: #052223;
+  font-weight: 600;
+  justify-self: end;
+}
+
+.support-input-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  padding: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.support-input {
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  padding: 10px;
+}
+
+.support-send[disabled] {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+@media (max-width: 640px) {
+  .support-fab {
+    right: 12px;
+    bottom: 12px;
+  }
+
+  .support-panel {
+    right: 12px;
+    left: 12px;
+    width: auto;
+    bottom: 86px;
+  }
+}
+
 .empty {
   margin: 30px 0;
   padding: 24px;
