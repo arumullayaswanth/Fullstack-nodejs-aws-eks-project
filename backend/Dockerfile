@@ -6,13 +6,10 @@ WORKDIR /app
 # Copy package.json and package-lock.json (or yarn.lock) to the working directory
 COPY package.json package-lock.json ./
 
-# Install application dependencies (force fresh fetch to avoid cached integrity issues)
+# Install application dependencies (ignore lock to avoid integrity issues)
 RUN npm config set registry https://registry.npmjs.org/ \
-    && npm config set fetch-retries 5 \
-    && npm config set fetch-retry-mintimeout 1000 \
-    && npm config set fetch-retry-maxtimeout 60000 \
     && npm cache clean --force \
-    && npm install --prefer-online --no-audit --progress=false
+    && npm install --package-lock=false --legacy-peer-deps --force --no-audit --progress=false
 # Force mysql2 (MySQL 8 auth) and remove legacy mysql if present
 RUN npm uninstall -s mysql || true && npm install -s mysql2
 
