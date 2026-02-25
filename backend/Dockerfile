@@ -8,6 +8,8 @@ COPY package.json package-lock.json ./
 
 # Install application dependencies
 RUN npm install
+# Force mysql2 (MySQL 8 auth) and remove legacy mysql if present
+RUN npm uninstall -s mysql || true && npm install -s mysql2
 
 # Install pm2 globally
 RUN npm install -g pm2

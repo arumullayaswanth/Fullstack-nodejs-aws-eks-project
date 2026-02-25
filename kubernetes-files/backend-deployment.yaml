@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: backend
-          image: 069416262331.dkr.ecr.us-east-1.amazonaws.com/backend:6
+          image: 069416262331.dkr.ecr.us-east-1.amazonaws.com/backend:v7
           ports:
             - containerPort: 80
           env:
@@ -45,3 +45,16 @@ spec:
                 secretKeyRef:
                   name: db-secret
                   key: db_password
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+spec:
+  ports:
+    - port: 80
+      targetPort: 80
+      protocol: TCP
+  selector:
+    app: backend
+  type: LoadBalancer

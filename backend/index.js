@@ -11,7 +11,7 @@ app.use(cors());
 app.use(express.json());
 app.use(morgan("common"));
 
-// MySQL pool to handle reconnects and MySQL 8 auth
+// MySQL pool for MySQL 8 auth + reconnects
 const pool = mysql.createPool({
   connectionLimit: 10,
   host: process.env.DB_HOST,
@@ -23,7 +23,7 @@ const pool = mysql.createPool({
   queueLimit: 0,
 });
 
-// Startup check
+// Startup connectivity check
 pool.getConnection((err, conn) => {
   if (err) {
     console.error("MySQL pool connection failed:", err.code || err.message);
