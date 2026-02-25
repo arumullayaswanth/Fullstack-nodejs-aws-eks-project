@@ -149,9 +149,21 @@ a { color: inherit; text-decoration: none; }
 .catalog-controls {
   margin: 8px 0 22px;
   display: grid;
+  gap: 12px;
+}
+
+.catalog-main {
+  display: grid;
   grid-template-columns: 1.3fr 1fr 1fr auto;
   gap: 12px;
   align-items: end;
+}
+
+.catalog-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .control-box {
@@ -265,9 +277,10 @@ a { color: inherit; text-decoration: none; }
   overflow: hidden;
   border-radius: 14px;
   border: 1px solid var(--border);
+  aspect-ratio: 4 / 3;
 }
 
-.cover-wrap img { width: 100%; height: 170px; object-fit: cover; display: block; }
+.cover-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
 .price-chip {
   position: absolute;
@@ -532,6 +545,25 @@ a { color: inherit; text-decoration: none; }
   color: #fff;
 }
 
+.contrib-banner {
+  margin: 14px 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  padding: 10px 12px;
+  color: var(--muted);
+}
+
+.contrib-banner a {
+  color: #9ed0ff;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
 .support-fab {
   position: fixed;
   right: 20px;
@@ -721,12 +753,17 @@ a { color: inherit; text-decoration: none; }
 }
 
 @media (max-width: 900px) {
-  .catalog-controls {
+  .catalog-main {
     grid-template-columns: 1fr;
   }
 
   .spotlight-grid {
     grid-template-columns: 1fr;
+  }
+
+  .catalog-actions {
+    flex-direction: column;
+    align-items: stretch;
   }
 
   .bulk-panel {

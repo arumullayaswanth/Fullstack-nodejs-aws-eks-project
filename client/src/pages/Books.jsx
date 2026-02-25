@@ -8,10 +8,25 @@ const META_KEY = "ya_book_meta_v1";
 const REVIEWS_KEY = "ya_book_reviews_v1";
 const CART_KEY = "ya_cart_v1";
 
+const FALLBACK_COVER =
+  "https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=1200&q=80";
+
 const randomFromId = (id, min, max) => {
   const seed = Number(id || 1) * 9301 + 49297;
   const rnd = (seed % 233280) / 233280;
   return Math.floor(min + rnd * (max - min + 1));
+};
+
+const toCurrency = (value) => {
+  const num = Number(value || 0);
+  return num.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+};
+
+const toValidPrice = (value) => {
+  const num = Number(value);
+  if (!Number.isFinite(num) || num < 0) return null;
+  if (num > 5000) return null;
+  return num;
 };
 
 const guessCategory = (book) => {
@@ -115,6 +130,12 @@ const Books = () => {
     fetchAllBooks();
   }, [fetchAllBooks]);
 
+  const handleImageError = (event) => {
+    if (event.currentTarget.src !== FALLBACK_COVER) {
+      event.currentTarget.src = FALLBACK_COVER;
+    }
+  };
+
   const handleDelete = async (id) => {
     try {
       await axios.delete(`${API_BASE_URL}/books/${id}`);
@@ -132,7 +153,7 @@ const Books = () => {
   };
 
   const handleShare = async (book) => {
-    const shareText = `Check out ${book.title} at Yash Academic - $${Number(book.price || 0).toFixed(2)}`;
+    const shareText = `Check out ${book.title} at Yash Academic - $${toCurrency(book.price)}`;
     try {
       await navigator.clipboard.writeText(shareText);
       setError("Copied share text to clipboard.");
@@ -320,8 +341,9 @@ const Books = () => {
     .slice(0, 3);
   const newArrivals = [...enrichedBooks].sort((a, b) => Number(b.id) - Number(a.id)).slice(0, 3);
 
-  const totalValue = filteredBooks.reduce((sum, book) => sum + Number(book.price || 0), 0);
-  const averagePrice = filteredBooks.length ? totalValue / filteredBooks.length : 0;
+  const validPricedBooks = filteredBooks.filter((book) => toValidPrice(book.price) !== null);
+  const totalValue = validPricedBooks.reduce((sum, book) => sum + Number(toValidPrice(book.price) || 0), 0);
+  const averagePrice = validPricedBooks.length ? totalValue / validPricedBooks.length : 0;
   const lowStockCount = filteredBooks.filter((book) => Number(book.meta.stock || 0) <= 5).length;
 
   const stockLabel = (count) => {
@@ -355,6 +377,17 @@ const Books = () => {
         </div>
       </div>
 
+      <section className="contrib-banner">
+        <span>Contribute to Yash Academic Bookstore on GitHub.</span>
+        <a
+          href="https://github.com/arumullayaswanth/Fullstack-nodejs-aws-eks-project.git"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Click here to access the repository and create a pull request
+        </a>
+      </section>
+
       <section className="hero">
         <div className="hero-card">
           <div className="eyebrow">Yash Academic</div>
@@ -376,9 +409,10 @@ const Books = () => {
           <div className="stat-value">{filteredBooks.length}</div>
           <div className="stat-label">Visible titles</div>
           <div className="stats-mini">
-            <div>Avg price: ${averagePrice.toFixed(2)}</div>
-            <div>Catalog value: ${totalValue.toFixed(2)}</div>
+            <div>Avg price: ${toCurrency(averagePrice)}</div>
+            <div>Catalog value: ${toCurrency(totalValue)}</div>
             <div>Low stock: {lowStockCount}</div>
+            <div className="stat-label">Stats use valid catalog prices</div>
           </div>
         </div>
       </section>
@@ -405,84 +439,88 @@ const Books = () => {
       </section>
 
       <section className="catalog-controls">
-        <div className="control-box">
-          <label htmlFor="search">Search books</label>
-          <input
-            id="search"
-            type="text"
-            placeholder="Search title, description, tag"
-            value={query}
-            onChange={(e) => {
-              setQuery(e.target.value);
-              setCurrentPage(1);
-            }}
-          />
-        </div>
+        <div className="catalog-main">
+          <div className="control-box">
+            <label htmlFor="search">Search books</label>
+            <input
+              id="search"
+              type="text"
+              placeholder="Search title, description, tag"
+              value={query}
+              onChange={(e) => {
+                setQuery(e.target.value);
+                setCurrentPage(1);
+              }}
+            />
+          </div>
 
-        <div className="control-box">
-          <label htmlFor="sort">Sort by</label>
-          <select
-            id="sort"
-            value={sortBy}
-            onChange={(e) => {
-              setSortBy(e.target.value);
-              setCurrentPage(1);
-            }}
-          >
-            <option value="latest">Latest</option>
-            <option value="price-low">Price: low to high</option>
-            <option value="price-high">Price: high to low</option>
-            <option value="title">Title: A to Z</option>
-            <option value="rating">Highest rating</option>
-          </select>
-        </div>
+          <div className="control-box">
+            <label htmlFor="sort">Sort by</label>
+            <select
+              id="sort"
+              value={sortBy}
+              onChange={(e) => {
+                setSortBy(e.target.value);
+                setCurrentPage(1);
+              }}
+            >
+              <option value="latest">Latest</option>
+              <option value="price-low">Price: low to high</option>
+              <option value="price-high">Price: high to low</option>
+              <option value="title">Title: A to Z</option>
+              <option value="rating">Highest rating</option>
+            </select>
+          </div>
 
-        <div className="control-box">
-          <label htmlFor="category">Category</label>
-          <select
-            id="category"
-            value={categoryFilter}
-            onChange={(e) => {
-              setCategoryFilter(e.target.value);
-              setCurrentPage(1);
-            }}
-          >
-            {categories.map((category) => (
-              <option key={category} value={category}>
-                {category === "all" ? "All categories" : category}
-              </option>
-            ))}
-          </select>
-        </div>
+          <div className="control-box">
+            <label htmlFor="category">Category</label>
+            <select
+              id="category"
+              value={categoryFilter}
+              onChange={(e) => {
+                setCategoryFilter(e.target.value);
+                setCurrentPage(1);
+              }}
+            >
+              {categories.map((category) => (
+                <option key={category} value={category}>
+                  {category === "all" ? "All categories" : category}
+                </option>
+              ))}
+            </select>
+          </div>
 
-        <button className={`btn ghost ${favoritesOnly ? "active-toggle" : ""}`} onClick={() => setFavoritesOnly((v) => !v)}>
-          {favoritesOnly ? "Showing favorites" : "Favorites only"}
-        </button>
-
-        <div className="bulk-panel">
-          <input
-            type="number"
-            placeholder="Bulk % (e.g. 10 or -5)"
-            value={bulkPercent}
-            onChange={(e) => setBulkPercent(e.target.value)}
-          />
-          <button className="btn secondary" onClick={handleBulkPrice} disabled={!selectedIds.length}>
-            Bulk price update
+          <button className={`btn ghost ${favoritesOnly ? "active-toggle" : ""}`} onClick={() => setFavoritesOnly((v) => !v)}>
+            {favoritesOnly ? "Showing favorites" : "Favorites only"}
           </button>
         </div>
 
-        <button
-          className="btn ghost"
-          onClick={() => {
-            setQuery("");
-            setSortBy("latest");
-            setCategoryFilter("all");
-            setFavoritesOnly(false);
-            setCurrentPage(1);
-          }}
-        >
-          Clear filters
-        </button>
+        <div className="catalog-actions">
+          <div className="bulk-panel">
+            <input
+              type="number"
+              placeholder="Bulk % (e.g. 10 or -5)"
+              value={bulkPercent}
+              onChange={(e) => setBulkPercent(e.target.value)}
+            />
+            <button className="btn secondary" onClick={handleBulkPrice} disabled={!selectedIds.length}>
+              Bulk price update
+            </button>
+          </div>
+
+          <button
+            className="btn ghost"
+            onClick={() => {
+              setQuery("");
+              setSortBy("latest");
+              setCategoryFilter("all");
+              setFavoritesOnly(false);
+              setCurrentPage(1);
+            }}
+          >
+            Clear filters
+          </button>
+        </div>
       </section>
 
       {error && <div className="empty" style={{ borderStyle: "solid" }}>{error}</div>}
@@ -508,8 +546,8 @@ const Books = () => {
                 </div>
 
                 <div className="cover-wrap">
-                  <img src={book.cover} alt={book.title} />
-                  <span className="price-chip">${Number(book.price).toFixed(2)}</span>
+                  <img src={book.cover || FALLBACK_COVER} alt={book.title} loading="lazy" onError={handleImageError} />
+                  <span className="price-chip">${toCurrency(book.price)}</span>
                   <span className="featured-chip">{stockLabel(Number(book.meta.stock || 0))}</span>
                 </div>
 
@@ -584,13 +622,18 @@ const Books = () => {
           <div className="modal-card" onClick={(e) => e.stopPropagation()}>
             <button className="close-btn" onClick={() => setQuickView(null)}>x</button>
             <div className="modal-grid">
-              <img src={quickView.cover} alt={quickView.title} className="modal-cover" />
+              <img
+                src={quickView.cover || FALLBACK_COVER}
+                alt={quickView.title}
+                className="modal-cover"
+                onError={handleImageError}
+              />
               <div>
                 <div className="eyebrow">Quick View</div>
                 <h2>{quickView.title}</h2>
                 <p className="lede">{quickView.desc}</p>
                 <div className="chip-row">
-                  <span className="chip">Price: ${Number(quickView.price).toFixed(2)}</span>
+                  <span className="chip">Price: ${toCurrency(quickView.price)}</span>
                   <span className="chip">Rating: {Number((meta[quickView.id]?.rating || 0)).toFixed(1)} / 5</span>
                 </div>
                 <div className="card-actions wrap-actions" style={{ marginTop: 12 }}>
