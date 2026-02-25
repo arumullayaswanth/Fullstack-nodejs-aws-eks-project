@@ -32,9 +32,10 @@ a { color: inherit; text-decoration: none; }
 .app { min-height: 100vh; }
 
 .shell {
-  max-width: 1120px;
-  margin: 0 auto;
-  padding: 32px 20px 72px;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding: 24px clamp(12px, 2.2vw, 34px) 72px;
 }
 
 .topbar {
@@ -716,8 +717,9 @@ a { color: inherit; text-decoration: none; }
 }
 
 .form-shell {
-  max-width: 720px;
-  margin: 40px auto;
+  width: 100%;
+  max-width: 100%;
+  margin: 24px 0 0;
   padding: 24px;
   background: var(--card);
   border: 1px solid var(--border);
@@ -728,7 +730,18 @@ a { color: inherit; text-decoration: none; }
 .form-shell h1 { margin: 0 0 6px; font-family: "Playfair Display", serif; }
 .form-shell p { margin: 0 0 18px; color: var(--muted); }
 
-.form-grid { display: grid; gap: 14px; }
+.form-grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.form-grid .field:nth-child(2),
+.form-grid .field:nth-child(4),
+.form-grid .form-actions,
+.form-grid .empty {
+  grid-column: 1 / -1;
+}
 
 .field label { display: block; font-weight: 600; margin-bottom: 6px; }
 
@@ -750,6 +763,7 @@ a { color: inherit; text-decoration: none; }
 @media (max-width: 640px) {
   .topbar { flex-direction: column; align-items: flex-start; }
   .form-actions { flex-direction: column; }
+  .form-grid { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 900px) {
