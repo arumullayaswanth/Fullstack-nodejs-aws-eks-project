@@ -149,7 +149,7 @@ a { color: inherit; text-decoration: none; }
 .catalog-controls {
   margin: 8px 0 22px;
   display: grid;
-  grid-template-columns: 1.5fr 1fr auto;
+  grid-template-columns: 1.3fr 1fr 1fr auto;
   gap: 12px;
   align-items: end;
 }
@@ -179,6 +179,58 @@ a { color: inherit; text-decoration: none; }
 .control-box select option {
   background: #0f172a;
   color: var(--text);
+}
+
+.bulk-panel {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.bulk-panel input {
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  padding: 12px;
+  font-size: 14px;
+  min-width: 170px;
+}
+
+.active-toggle {
+  border-color: rgba(110, 231, 183, 0.55);
+  color: var(--accent-2);
+}
+
+.spotlight-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0 0 16px;
+}
+
+.spotlight-card {
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 14px;
+  padding: 14px;
+}
+
+.spotlight-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.spotlight-item:last-child {
+  border-bottom: none;
+}
+
+.spotlight-meta {
+  color: var(--muted);
+  white-space: nowrap;
 }
 
 .books-grid {
@@ -245,10 +297,160 @@ a { color: inherit; text-decoration: none; }
 .book-desc { color: var(--muted); line-height: 1.5; min-height: 60px; }
 
 .card-actions { display: flex; gap: 10px; }
+.wrap-actions { flex-wrap: wrap; }
+
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  border: 1px solid var(--border);
+  padding: 4px 9px;
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.select-wrap {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.select-wrap input {
+  accent-color: #14b8a6;
+}
 
 .book-card:hover {
   transform: translateY(-4px);
   transition: transform 0.2s ease;
+}
+
+.favorite-on {
+  border-color: rgba(255, 179, 71, 0.7);
+  color: #ffd29b;
+}
+
+.inline-edit {
+  display: grid;
+  gap: 10px;
+}
+
+.inline-edit input,
+.inline-edit textarea {
+  width: 100%;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  padding: 10px;
+}
+
+.pager {
+  margin-top: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(5, 10, 20, 0.75);
+  backdrop-filter: blur(4px);
+  display: grid;
+  place-items: center;
+  z-index: 50;
+  padding: 16px;
+}
+
+.modal-card {
+  width: min(980px, 96vw);
+  max-height: 90vh;
+  overflow: auto;
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  background: #0e1830;
+  box-shadow: var(--shadow);
+  padding: 18px;
+  position: relative;
+}
+
+.close-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.modal-grid {
+  display: grid;
+  grid-template-columns: 290px 1fr;
+  gap: 16px;
+}
+
+.modal-cover {
+  width: 100%;
+  height: 330px;
+  object-fit: cover;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+}
+
+.review-block {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.review-list {
+  max-height: 180px;
+  overflow: auto;
+}
+
+.review-item {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+.review-item p {
+  margin: 6px 0 0;
+  color: var(--muted);
+}
+
+.review-form {
+  display: grid;
+  grid-template-columns: 1fr 160px;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.review-form textarea,
+.review-form input,
+.review-form select {
+  width: 100%;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  padding: 10px;
+}
+
+.review-form textarea {
+  grid-column: 1 / -1;
 }
 
 .empty {
@@ -299,6 +501,27 @@ a { color: inherit; text-decoration: none; }
 
 @media (max-width: 900px) {
   .catalog-controls {
+    grid-template-columns: 1fr;
+  }
+
+  .spotlight-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .bulk-panel {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .modal-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .modal-cover {
+    height: 220px;
+  }
+
+  .review-form {
     grid-template-columns: 1fr;
   }
 }
