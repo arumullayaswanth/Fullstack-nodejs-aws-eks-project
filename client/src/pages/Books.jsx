@@ -352,30 +352,91 @@ const Books = () => {
     return "In stock";
   };
 
+  const uiCategories = [
+    "Books",
+    "Fiction",
+    "Non-Fiction",
+    "Teens & YA",
+    "Kids",
+    "Exams",
+    "Medical Exams",
+    "Manga",
+    "Award Winners",
+    "Today's Deal",
+  ];
+
   return (
     <div className="shell">
-      <div className="topbar">
-        <div className="brand">
+      <div className="promo-strip">
+        Download our app and get FLAT 10% OFF - Usecode BWAPP | Yash Academic Bookstore
+      </div>
+
+      <header className="store-header">
+        <div className="store-brand">
           <div className="brand-mark">YA</div>
           <div>
             <div className="brand-text">Yash Academic</div>
-            <div className="pill-row">
-              <span className="pill">Catalog</span>
-              <span className="pill">Curation</span>
-              <span className="pill">Orders</span>
-            </div>
+            <div className="brand-sub">Bookstore</div>
           </div>
         </div>
-        <div className="pill-row">
-          <span className="pill">Cart: {cart.length}</span>
-          <Link to="/add">
-            <button className="btn primary">Add a title</button>
-          </Link>
-          <button className="btn secondary" onClick={fetchAllBooks} disabled={loading}>
-            {loading ? "Refreshing..." : "Refresh"}
-          </button>
+
+        <form
+          className="store-search"
+          onSubmit={(e) => {
+            e.preventDefault();
+          }}
+        >
+          <input
+            type="text"
+            placeholder="Search by title, author, topic or ISBN"
+            value={query}
+            onChange={(e) => {
+              setQuery(e.target.value);
+              setCurrentPage(1);
+            }}
+          />
+          <button type="submit">Search</button>
+        </form>
+
+        <div className="store-actions">
+          <span>My Account</span>
+          <span>Wishlist</span>
+          <span>Cart: {cart.length}</span>
         </div>
-      </div>
+      </header>
+
+      <nav className="category-nav">
+        {uiCategories.map((item) => (
+          <button key={item} className="category-btn" type="button">
+            {item}
+          </button>
+        ))}
+      </nav>
+
+      <section className="market-hero">
+        <div className="hero-copy">
+          <h2>Explore the best selling books</h2>
+          <p>Everyone is reading and recommending at Yash Academic.</p>
+          <div className="hero-actions">
+            <Link to="/add">
+              <button className="btn primary">Add a title</button>
+            </Link>
+            <button className="btn secondary" onClick={fetchAllBooks} disabled={loading}>
+              {loading ? "Refreshing..." : "Refresh catalog"}
+            </button>
+          </div>
+        </div>
+        <div className="hero-covers">
+          {newArrivals.map((book) => (
+            <img
+              key={`cover-${book.id}`}
+              src={book.cover || FALLBACK_COVER}
+              alt={book.title}
+              onError={handleImageError}
+            />
+          ))}
+        </div>
+      </section>
 
       <section className="contrib-banner">
         <span>Contribute to Yash Academic Bookstore on GitHub.</span>
