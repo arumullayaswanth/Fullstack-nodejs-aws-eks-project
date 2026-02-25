@@ -127,6 +127,7 @@ a { color: inherit; text-decoration: none; }
 .btn.ghost { background: transparent; border: 1px solid var(--border); color: var(--text); }
 .btn.danger { border-color: rgba(248, 113, 113, 0.5); color: #fca5a5; }
 .btn:active { transform: translateY(1px); }
+.btn:hover { transform: translateY(-1px); }
 
 .stat-card {
   padding: 22px 20px;
@@ -137,6 +138,48 @@ a { color: inherit; text-decoration: none; }
 
 .stat-value { font-size: 36px; font-weight: 800; }
 .stat-label { color: var(--muted); }
+.stats-mini {
+  margin-top: 14px;
+  display: grid;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.catalog-controls {
+  margin: 8px 0 22px;
+  display: grid;
+  grid-template-columns: 1.5fr 1fr auto;
+  gap: 12px;
+  align-items: end;
+}
+
+.control-box {
+  display: grid;
+  gap: 8px;
+}
+
+.control-box label {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.control-box input,
+.control-box select {
+  width: 100%;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  padding: 12px;
+  font-size: 14px;
+}
+
+.control-box select option {
+  background: #0f172a;
+  color: var(--text);
+}
 
 .books-grid {
   display: grid;
@@ -162,6 +205,7 @@ a { color: inherit; text-decoration: none; }
   display: flex;
   flex-direction: column;
   gap: 12px;
+  animation: cardIn 260ms ease both;
 }
 
 .cover-wrap {
@@ -185,10 +229,27 @@ a { color: inherit; text-decoration: none; }
   border: 1px solid var(--border);
 }
 
+.featured-chip {
+  position: absolute;
+  left: 12px;
+  top: 12px;
+  background: linear-gradient(135deg, #6ee7b7, #14b8a6);
+  color: #05291f;
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
 .book-title { font-size: 18px; font-weight: 700; }
 .book-desc { color: var(--muted); line-height: 1.5; min-height: 60px; }
 
 .card-actions { display: flex; gap: 10px; }
+
+.book-card:hover {
+  transform: translateY(-4px);
+  transition: transform 0.2s ease;
+}
 
 .empty {
   margin: 30px 0;
@@ -234,4 +295,21 @@ a { color: inherit; text-decoration: none; }
 @media (max-width: 640px) {
   .topbar { flex-direction: column; align-items: flex-start; }
   .form-actions { flex-direction: column; }
+}
+
+@media (max-width: 900px) {
+  .catalog-controls {
+    grid-template-columns: 1fr;
+  }
+}
+
+@keyframes cardIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
