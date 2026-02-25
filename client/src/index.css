@@ -1,13 +1,237 @@
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap");
+
+:root {
+  --bg: #0f172a;
+  --card: #111b31;
+  --muted: #9cb3d3;
+  --text: #eaf1ff;
+  --accent: #ffb347;
+  --accent-2: #6ee7b7;
+  --border: rgba(255, 255, 255, 0.08);
+  --shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Manrope", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: radial-gradient(circle at 10% 20%, rgba(110, 231, 183, 0.08), transparent 25%),
+    radial-gradient(circle at 90% 10%, rgba(255, 179, 71, 0.09), transparent 30%),
+    radial-gradient(circle at 50% 80%, rgba(99, 102, 241, 0.08), transparent 30%),
+    var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: inherit; text-decoration: none; }
+
+.app { min-height: 100vh; }
+
+.shell {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 32px 20px 72px;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 12px 18px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.02);
+  backdrop-filter: blur(10px);
+}
+
+.brand { display: flex; align-items: center; gap: 12px; }
+
+.brand-mark {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #6ee7b7, #22c55e);
+  color: #0b1222;
+  font-weight: 800;
+}
+
+.brand-text { font-weight: 700; letter-spacing: 0.3px; }
+
+.pill-row { display: flex; gap: 12px; flex-wrap: wrap; }
+
+.pill {
+  padding: 8px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  color: var(--muted);
+}
+
+.hero {
+  margin: 32px 0 28px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 18px;
+  align-items: center;
+}
+
+.hero-card {
+  padding: 26px 24px;
+  background: linear-gradient(135deg, rgba(255, 179, 71, 0.12), rgba(110, 231, 183, 0.08));
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+}
+
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 1.6px;
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.hero h1 {
+  margin: 10px 0 8px;
+  font-family: "Playfair Display", serif;
+  font-weight: 700;
+  font-size: clamp(28px, 4vw, 40px);
+}
+
+.lede { color: var(--muted); margin: 0 0 16px; line-height: 1.6; }
+
+.hero-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+
+.btn {
+  border: none;
+  cursor: pointer;
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-weight: 700;
+  transition: transform 0.15s ease, box-shadow 0.2s ease;
+}
+
+.btn.primary {
+  background: linear-gradient(135deg, #ffb347, #f97316);
+  color: #0b1222;
+  box-shadow: 0 12px 30px rgba(249, 115, 22, 0.35);
+}
+
+.btn.secondary { background: rgba(255, 255, 255, 0.06); color: var(--text); border: 1px solid var(--border); }
+.btn.ghost { background: transparent; border: 1px solid var(--border); color: var(--text); }
+.btn.danger { border-color: rgba(248, 113, 113, 0.5); color: #fca5a5; }
+.btn:active { transform: translateY(1px); }
+
+.stat-card {
+  padding: 22px 20px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border);
+}
+
+.stat-value { font-size: 36px; font-weight: 800; }
+.stat-label { color: var(--muted); }
+
+.books-grid {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 18px;
+  margin-top: 10px;
+}
+
+@media (min-width: 700px) {
+  .books-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (min-width: 1024px) {
+  .books-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+.book-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 16px;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cover-wrap {
+  position: relative;
+  overflow: hidden;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+}
+
+.cover-wrap img { width: 100%; height: 170px; object-fit: cover; display: block; }
+
+.price-chip {
+  position: absolute;
+  right: 12px;
+  top: 12px;
+  background: #0f172a;
+  color: var(--accent);
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-weight: 700;
+  border: 1px solid var(--border);
+}
+
+.book-title { font-size: 18px; font-weight: 700; }
+.book-desc { color: var(--muted); line-height: 1.5; min-height: 60px; }
+
+.card-actions { display: flex; gap: 10px; }
+
+.empty {
+  margin: 30px 0;
+  padding: 24px;
+  border: 1px dashed var(--border);
+  border-radius: 14px;
+  color: var(--muted);
+  text-align: center;
+}
+
+.form-shell {
+  max-width: 720px;
+  margin: 40px auto;
+  padding: 24px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  box-shadow: var(--shadow);
+}
+
+.form-shell h1 { margin: 0 0 6px; font-family: "Playfair Display", serif; }
+.form-shell p { margin: 0 0 18px; color: var(--muted); }
+
+.form-grid { display: grid; gap: 14px; }
+
+.field label { display: block; font-weight: 600; margin-bottom: 6px; }
+
+.field input,
+.field textarea {
+  width: 100%;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text);
+  padding: 12px;
+  font-size: 15px;
+}
+
+.field textarea { resize: vertical; min-height: 100px; }
+
+.form-actions { display: flex; gap: 12px; margin-top: 8px; }
+
+@media (max-width: 640px) {
+  .topbar { flex-direction: column; align-items: flex-start; }
+  .form-actions { flex-direction: column; }
 }

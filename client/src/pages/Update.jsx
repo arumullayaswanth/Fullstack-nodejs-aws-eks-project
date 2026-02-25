@@ -4,17 +4,11 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import API_BASE_URL from "./config";
 
 const Update = () => {
-  const [book, setBook] = useState({
-    title: "",
-    desc: "",
-    price: null,
-    cover: "",
-  });
-  const [error,setError] = useState(false)
+  const [book, setBook] = useState({ title: "", desc: "", price: "", cover: "" });
+  const [error, setError] = useState(null);
 
   const location = useLocation();
   const navigate = useNavigate();
-
   const bookId = location.pathname.split("/")[2];
 
   const handleChange = (e) => {
@@ -23,47 +17,47 @@ const Update = () => {
 
   const handleClick = async (e) => {
     e.preventDefault();
-
     try {
       await axios.put(`${API_BASE_URL}/books/${bookId}`, book);
       navigate("/");
     } catch (err) {
-      console.log(err);
-      setError(true);
+      console.error(err);
+      setError("Could not update. Please try again.");
     }
   };
 
   return (
-    <div className="form">
-      <h1>Update the Book</h1>
-      <input
-        type="text"
-        placeholder="Book title"
-        name="title"
-        onChange={handleChange}
-      />
-      <textarea
-        rows={5}
-        type="text"
-        placeholder="Book desc"
-        name="desc"
-        onChange={handleChange}
-      />
-      <input
-        type="number"
-        placeholder="Book price"
-        name="price"
-        onChange={handleChange}
-      />
-      <input
-        type="text"
-        placeholder="Book cover"
-        name="cover"
-        onChange={handleChange}
-      />
-      <button onClick={handleClick}>Update</button>
-      {error && "Something went wrong!"}
-      <Link to="/">See all books</Link>
+    <div className="shell">
+      <div className="form-shell">
+        <div className="eyebrow">Yash Academic</div>
+        <h1>Edit title</h1>
+        <p>Update details, pricing, or cover artwork.</p>
+        <form className="form-grid" onSubmit={handleClick}>
+          <div className="field">
+            <label htmlFor="title">Title</label>
+            <input id="title" name="title" placeholder="E.g., Deep Work" onChange={handleChange} />
+          </div>
+          <div className="field">
+            <label htmlFor="desc">Description</label>
+            <textarea id="desc" name="desc" rows={4} placeholder="What changes?" onChange={handleChange} />
+          </div>
+          <div className="field">
+            <label htmlFor="price">Price (USD)</label>
+            <input id="price" name="price" type="number" min="0" step="0.01" placeholder="19.99" onChange={handleChange} />
+          </div>
+          <div className="field">
+            <label htmlFor="cover">Cover URL</label>
+            <input id="cover" name="cover" type="url" placeholder="https://..." onChange={handleChange} />
+          </div>
+          <div className="form-actions">
+            <Link to="/">
+              <button type="button" className="btn secondary">Cancel</button>
+            </Link>
+            <button type="submit" className="btn primary">Update book</button>
+          </div>
+          {error && <div className="empty" style={{ borderStyle: "solid", margin: 0 }}>{error}</div>}
+        </form>
+      </div>
     </div>
   );
 };
